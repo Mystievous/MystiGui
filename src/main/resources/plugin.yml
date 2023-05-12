@@ -1,0 +1,8 @@
+name: MystiGui
+version: '${project.version}'
+main: io.github.mystievous.mystigui.MystiGui
+api-version: 1.19
+authors: [ Mystievous ]
+description: Mystievous' GUI Library
+depend:
+  - MystiCore
