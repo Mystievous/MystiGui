@@ -32,7 +32,7 @@ public class GuiHeldItem implements Listener {
         this.item = item;
         NBTUtils.setString(plugin, GUI_ID, this.item, guiId);
         NBTUtils.noStack(plugin, this.item);
-        NBTUtils.setNoUse(plugin, this.item);
+        NBTUtils.setNoUse(this.item);
         this.openable = openable;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
