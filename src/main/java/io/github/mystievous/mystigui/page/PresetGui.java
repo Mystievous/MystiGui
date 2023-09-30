@@ -42,7 +42,7 @@ public class PresetGui extends Gui {
 
     private final int rows;
 
-    public PresetGui(Plugin plugin, Component name, int textureAdjust, Character customTexture, int titleAdjust, int rows) {
+    public PresetGui(Plugin plugin, Component name, int textureAdjust, Component customTexture, int titleAdjust, int rows) {
         super(plugin, name, textureAdjust, customTexture, titleAdjust);
         this.rows = rows;
         loadGui();

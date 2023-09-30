@@ -43,14 +43,14 @@ public abstract class Gui implements Listener {
      * @param customTexture character that renders the graphic
      * @param titleAdjust   pixel amount to adjust the title, to shift it back over the graphic
      */
-    public Gui(Plugin plugin, Component name, int textureAdjust, Character customTexture, int titleAdjust) {
+    public Gui(Plugin plugin, Component name, int textureAdjust, Component customTexture, int titleAdjust) {
         this.plugin = plugin;
         TextComponent.Builder titleBuilder = Component.text();
         if (textureAdjust != 0) {
             titleBuilder.append(TextUtil.space(textureAdjust));
         }
         if (customTexture != null) {
-            titleBuilder.append(Component.text(customTexture).color(NamedTextColor.WHITE));
+            titleBuilder.append(customTexture.color(NamedTextColor.WHITE));
         }
         if (titleAdjust != 0) {
             titleBuilder.append(TextUtil.space(titleAdjust));
