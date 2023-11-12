@@ -5,7 +5,7 @@ plugins {
 
 group = 'io.github.mystievous'
 version = System.getenv("VERSION")
-
+ 
 repositories {
     mavenCentral()
     maven {
