@@ -5,7 +5,7 @@ plugins {
 
 group = 'io.github.mystievous'
 version = System.getenv("VERSION")
- 
+
 repositories {
     mavenCentral()
     maven {
@@ -62,8 +62,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Mystievous/MystiGui")
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                username = project.findProperty("gpr.username") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
             }
         }
     }
