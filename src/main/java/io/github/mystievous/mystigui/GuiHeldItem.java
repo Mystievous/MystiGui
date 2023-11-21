@@ -21,12 +21,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class GuiHeldItem extends UsableItem {
 
-    public static final String GUI_ID = "gui_id";
-
     private final Openable openable;
 
     public GuiHeldItem(JavaPlugin plugin, String guiId, ItemStack item, Openable openable) {
-        super(plugin, GUI_ID, NBTUtils.noStack(NBTUtils.setNoUse(item)), event -> openForEventPlayer(openable, event));
+        super(plugin, guiId, NBTUtils.noStack(NBTUtils.setNoUse(item)), event -> openForEventPlayer(openable, event));
         this.openable = openable;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
