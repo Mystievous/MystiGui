@@ -163,10 +163,8 @@ public abstract class Gui implements Listener {
         if (item == null || item.getType().isAir())
             return;
 
-        if (!NBTUtils.hasUniqueID(plugin, item))
-            return;
-        UUID itemId = NBTUtils.getUniqueID(plugin, item);
-        if (!elements.containsKey(itemId))
+        UUID itemId = NBTUtils.getUUID(Element.UUID_KEY(plugin), item.getItemMeta());
+        if (itemId == null || !elements.containsKey(itemId))
             return;
 
         if (!(event.getWhoClicked() instanceof Player player))

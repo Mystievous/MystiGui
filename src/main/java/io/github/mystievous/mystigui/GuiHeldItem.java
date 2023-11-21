@@ -4,20 +4,11 @@ import io.github.mystievous.mysticore.NBTUtils;
 import io.github.mystievous.mysticore.interact.UsableItem;
 import io.github.mystievous.mystigui.page.Gui;
 import io.github.mystievous.mystigui.page.Openable;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 
 public class GuiHeldItem extends UsableItem {
 
