@@ -17,7 +17,6 @@ public class GuiHeldItem extends UsableItem {
     public GuiHeldItem(JavaPlugin plugin, String guiId, ItemStack item, Openable openable) {
         super(plugin, guiId, NBTUtils.noStack(NBTUtils.setNoUse(item)), event -> openForEventPlayer(openable, event));
         this.openable = openable;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     private static void openForEventPlayer(Openable openable, PlayerInteractEvent event) {
