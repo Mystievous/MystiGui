@@ -12,14 +12,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Gui {
+public class Gui extends Widget {
+
+    public static final int GUI_WIDTH = 9;
 
     private Map<Vector2i, Widget> widgets;
     private Set<Vector2i> blockedSlots;
+    private final int slots;
 
-    public Gui() {
+    public Gui(int rows) {
+        super();
         this.widgets = new HashMap<>();
         this.blockedSlots = new HashSet<>();
+
+        this.slots = rows * GUI_WIDTH;
+        this.setSize(new Vector2i(GUI_WIDTH, rows));
     }
 
     public void putWidget(Vector2i position, Widget widget) {
@@ -38,8 +45,8 @@ public class Gui {
         blockedSlots.addAll(widgetSlots);
     }
 
-    public Inventory render() {
-        Inventory inventory = Bukkit.createInventory(null, 54, Component.text("Inventory"));
+    public Map<Vector2i, ItemStack> render() {
+        Map<Vector2i, ItemStack> renderedItems = new HashMap<>();
         for (Map.Entry<Vector2i, Widget> widgetEntry : widgets.entrySet()) {
             Vector2i widgetPosition = widgetEntry.getKey();
             Widget widget = widgetEntry.getValue();
@@ -52,25 +59,19 @@ public class Gui {
 
                 Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
 
-                Bukkit.getServer().sendMessage(Component.text("Item"));
-                Bukkit.getServer().sendMessage(Component.text(widgetPosition.toString()));
-                Bukkit.getServer().sendMessage(Component.text(itemPosition.toString()));
-                Bukkit.getServer().sendMessage(Component.text(pos.toString()));
-
-                inventory.setItem(vectorToIndex(pos), itemValue);
+                renderedItems.put(pos, itemValue);
             }
 
         }
+        return renderedItems;
+    }
+
+    public Inventory renderInventory() {
+        Inventory inventory = Bukkit.createInventory(null, slots, Component.text("Inventory"));
+        render().forEach((vector2i, itemStack) -> {
+            inventory.setItem(vectorToIndex(vector2i), itemStack);
+        });
         return inventory;
     }
-
-    private int vectorToIndex(Vector2i vector) {
-        int width = 9;
-        int x = vector.x();
-        int y = vector.y();
-
-        return y * width + x;
-    }
-
 
 }

@@ -14,7 +14,7 @@ public class GuiCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Gui gui = new Gui();
+        Gui gui = new Gui(6);
 
         ListWidget widget = new ListWidget(new Vector2i(4, 2));
         widget.addItem(new ItemStack(Material.STICK));
@@ -25,7 +25,7 @@ public class GuiCommand implements CommandExecutor {
         gui.putWidget(new Vector2i(2, 3), widget);
 
         if (commandSender instanceof Player player) {
-            player.openInventory(gui.render());
+            player.openInventory(gui.renderInventory());
         }
 
         return true;

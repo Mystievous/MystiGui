@@ -22,10 +22,6 @@ public class ListWidget extends Widget {
         setSize(size);
     }
 
-    public ListWidget() {
-        this(new Vector2i(1, 1));
-    }
-
     public void addItem(ItemStack itemStack) {
         items.add(new ItemWidget(itemStack));
     }
@@ -38,13 +34,6 @@ public class ListWidget extends Widget {
             renderedItems.put(indexToVector(i), itemWidget.render().get(new Vector2i()));
         }
         return renderedItems;
-    }
-
-    private Vector2i indexToVector(int index) {
-        int width = getSize().x();
-        int x = index % width;
-        int y = index / width;
-        return new Vector2i(x, y);
     }
 
     public int getFreeArea() {
