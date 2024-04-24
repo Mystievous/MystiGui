@@ -52,6 +52,11 @@ public class Gui {
 
                 Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
 
+                Bukkit.getServer().sendMessage(Component.text("Item"));
+                Bukkit.getServer().sendMessage(Component.text(widgetPosition.toString()));
+                Bukkit.getServer().sendMessage(Component.text(itemPosition.toString()));
+                Bukkit.getServer().sendMessage(Component.text(pos.toString()));
+
                 inventory.setItem(vectorToIndex(pos), itemValue);
             }
 
@@ -63,7 +68,8 @@ public class Gui {
         int width = 9;
         int x = vector.x();
         int y = vector.y();
-        return y * 6 + x;
+
+        return y * width + x;
     }
 
 
