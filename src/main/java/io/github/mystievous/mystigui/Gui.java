@@ -1,9 +1,12 @@
 package io.github.mystievous.mystigui;
 
+import io.github.mystievous.mysticore.NBTUtils;
+import io.github.mystievous.mystigui.widget.ItemWidget;
 import io.github.mystievous.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Gui extends Widget {
 
@@ -47,17 +51,17 @@ public class Gui extends Widget {
         widgetSlots.putAll(addSlots);
     }
 
-    private Map<Vector2i, ItemStack> render(Map<Vector2i, Widget> widgets) {
-        Map<Vector2i, ItemStack> renderedItems = new HashMap<>();
+    private Map<Vector2i, ItemWidget> render(Map<Vector2i, Widget> widgets) {
+        Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
         for (Map.Entry<Vector2i, Widget> widgetEntry : widgets.entrySet()) {
             Vector2i widgetPosition = widgetEntry.getKey();
             Widget widget = widgetEntry.getValue();
 
-            Map<Vector2i, ItemStack> items = widget.render();
+            Map<Vector2i, ItemWidget> items = widget.render();
 
-            for (Map.Entry<Vector2i, ItemStack> itemEntry : items.entrySet()) {
+            for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
                 Vector2i itemPosition = itemEntry.getKey();
-                ItemStack itemValue = itemEntry.getValue();
+                ItemWidget itemValue = itemEntry.getValue();
 
                 Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
 
@@ -69,7 +73,7 @@ public class Gui extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemStack> render() {
+    public Map<Vector2i, ItemWidget> render() {
         return render(widgets);
     }
 
@@ -83,8 +87,11 @@ public class Gui extends Widget {
 
         private final Map<Vector2i, Widget> guiWidgets;
 
+        private final Map<UUID, Consumer<InventoryClickEvent>> clickActions;
+
         private GuiHolder() {
             guiWidgets = new HashMap<>();
+            clickActions = new HashMap<>();
             cacheWidgets();
             this.inventory = Bukkit.createInventory(this, numberOfSlots, name);
             loadInventory();
@@ -98,10 +105,26 @@ public class Gui extends Widget {
 
         private void loadInventory() {
             ItemStack[] items = new ItemStack[inventory.getSize()];
-            render(guiWidgets).forEach((vector2i, itemStack) -> {
-                items[vectorToIndex(vector2i)] = itemStack.clone();
+            render(guiWidgets).forEach((vector2i, itemWidget) -> {
+                ItemWidget.ClickAction clickAction = itemWidget.getClickAction();
+                if (clickAction != null) {
+                    clickActions.put(clickAction.id(), clickAction.onClick());
+                }
+                items[vectorToIndex(vector2i)] = itemWidget.getItem().clone();
             });
             this.inventory.setContents(items);
+        }
+
+        public void onClick(final InventoryClickEvent event) {
+            if (event.isCancelled()) return;
+
+            event.setCancelled(true);
+            ItemStack itemStack = event.getCurrentItem();
+            if (itemStack == null) return;
+            UUID actionId = ItemWidget.getActionId(itemStack);
+            if (actionId != null && clickActions.containsKey(actionId)) {
+                clickActions.get(actionId).accept(event);
+            }
         }
 
         @Override

@@ -1,5 +1,7 @@
 package io.github.mystievous.mystigui.widget;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;
 
@@ -16,17 +18,17 @@ public class ListWidget extends Widget {
 
     public ListWidget(Vector2i size) {
         super();
-        page = 0;
+        page = 1;
         this.items = new ArrayList<>();
         setSize(size);
     }
 
-    public void addItem(ItemStack itemStack) {
-        items.add(new ItemWidget(itemStack));
-    }
-
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
+    }
+
+    public void addItem(ItemStack itemStack) {
+        addWidget(new ItemWidget(itemStack));
     }
 
     public int getPage() {
@@ -43,10 +45,23 @@ public class ListWidget extends Widget {
             return 1;
         }
 
-        return (int) Math.ceil((float) ((index + 1) + 1 - getArea()) / (getArea() - 2));
+        return (int) Math.ceil((float) ((index + 1) + 1 - getArea()) / (getArea() - 2)) + 1;
     }
 
-    public int pageStartIndex() {
+    public int maxItemsInPage(int page) {
+        if (page == 1) {
+            int maxPage = getPageForIndex(items.size() - 1);
+            if (maxPage == 1) {
+                return getArea();
+            }
+            return getArea() - 1;
+        }
+
+        return getArea() - 2;
+
+    }
+
+    public int pageStartIndex(int page) {
         if (page == 1) {
             return 0;
         }
@@ -59,12 +74,14 @@ public class ListWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemStack> render() {
-        Map<Vector2i, ItemStack> renderedItems = new HashMap<>();
+    public Map<Vector2i, ItemWidget> render() {
+        Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
-        for (int i = 0; i < items.size(); i++) {
+        int startIndex = pageStartIndex(page);
+        int endIndex = Math.min(startIndex + maxItemsInPage(page), items.size());
+        for (int i = startIndex; i < endIndex; i++) {
             ItemWidget itemWidget = items.get(i);
-            renderedItems.put(indexToVector(i), itemWidget.render().get(new Vector2i()));
+            renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
         }
         return renderedItems;
     }
@@ -74,9 +91,8 @@ public class ListWidget extends Widget {
         ListWidget widget = (ListWidget) super.clone();
 
         widget.items = new ArrayList<>();
-        this.items.forEach(widget1 -> {
-            widget.addWidget(widget1.clone());
-        });
+        widget.page = this.page;
+        this.items.forEach(widget1 -> widget.addWidget(widget1.clone()));
 
         return widget;
     }

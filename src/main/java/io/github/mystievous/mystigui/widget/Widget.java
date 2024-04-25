@@ -45,7 +45,11 @@ public abstract class Widget implements Cloneable {
         return event.isCancelled();
     }
 
-    public abstract Map<Vector2i, ItemStack> render();
+    /**
+     * All widgets should render down to the most basic `ItemWidget`
+     * @return
+     */
+    public abstract Map<Vector2i, ItemWidget> render();
 
     @Override
     public Widget clone() {

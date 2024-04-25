@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -18,8 +19,13 @@ public class GuiCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         Gui gui = new Gui(Component.text("name"), 6);
 
-        ListWidget widget = new ListWidget(new Vector2i(4, 2));
-        widget.addItem(new ItemStack(Material.STICK));
+        ListWidget widget = new ListWidget(new Vector2i(4, 3));
+        ItemWidget stick = new ItemWidget(new ItemStack(Material.STICK));
+        stick.setClickAction(event -> {
+            HumanEntity entity = event.getWhoClicked();
+            entity.sendMessage(Component.text("Woah you clicked a thing!"));
+        });
+        widget.addWidget(stick);
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));

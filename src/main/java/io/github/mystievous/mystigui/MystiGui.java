@@ -1,11 +1,9 @@
 package io.github.mystievous.mystigui;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Logger;
 
 public final class MystiGui extends JavaPlugin {
 
@@ -30,7 +28,13 @@ public final class MystiGui extends JavaPlugin {
         me = this;
 
         GuiCommand command = new GuiCommand();
-        Bukkit.getPluginCommand("gui").setExecutor(command);
+        PluginCommand pluginCommand = Bukkit.getPluginCommand("gui");
+        if (pluginCommand != null) {
+            pluginCommand.setExecutor(command);
+        }
+
+        GuiListener guiListener = new GuiListener();
+        Bukkit.getPluginManager().registerEvents(guiListener, this);
 
     }
 
