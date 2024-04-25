@@ -1,11 +1,12 @@
 package io.github.mystievous.mystigui.widget;
 
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;
 
 import java.util.Map;
 
-public abstract class Widget {
+public abstract class Widget implements Cloneable {
 
     private Vector2i size;
 
@@ -38,5 +39,24 @@ public abstract class Widget {
         return y * getSize().x() + x;
     }
 
+    public boolean emitChange() {
+        WidgetChangeEvent event = new WidgetChangeEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
+        return event.isCancelled();
+    }
+
     public abstract Map<Vector2i, ItemStack> render();
+
+    @Override
+    public Widget clone() {
+        try {
+            Widget widget = (Widget) super.clone();
+
+            widget.size = (Vector2i) this.size.clone();
+
+            return widget;
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
+    }
 }

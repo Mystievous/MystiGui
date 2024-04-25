@@ -1,6 +1,8 @@
 package io.github.mystievous.mystigui;
 
+import io.github.mystievous.mystigui.widget.ItemWidget;
 import io.github.mystievous.mystigui.widget.ListWidget;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,7 +16,7 @@ public class GuiCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Gui gui = new Gui(6);
+        Gui gui = new Gui(Component.text("name"), 6);
 
         ListWidget widget = new ListWidget(new Vector2i(4, 2));
         widget.addItem(new ItemStack(Material.STICK));
@@ -22,10 +24,21 @@ public class GuiCommand implements CommandExecutor {
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
+        widget.addItem(new ItemStack(Material.TNT));
         gui.putWidget(new Vector2i(2, 3), widget);
 
+        ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.BROWN_BANNER));
+        gui.putWidget(new Vector2i(1, 1), itemWidget);
+
         if (commandSender instanceof Player player) {
-            player.openInventory(gui.renderInventory());
+            player.openInventory(gui.renderInventory().getInventory());
         }
 
         return true;

@@ -3,49 +3,51 @@ package io.github.mystievous.mystigui;
 import io.github.mystievous.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Gui extends Widget {
 
-    public static final int GUI_WIDTH = 9;
+    public static final int INVENTORY_WIDTH = 9;
 
-    private Map<Vector2i, Widget> widgets;
-    private Set<Vector2i> blockedSlots;
-    private final int slots;
+    private final Map<Vector2i, Widget> widgets;
+    private final Map<Vector2i, Widget> widgetSlots;
+    private final int numberOfSlots;
+    private final Component name;
 
-    public Gui(int rows) {
+    public Gui(Component name, int rows) {
         super();
         this.widgets = new HashMap<>();
-        this.blockedSlots = new HashSet<>();
+        this.widgetSlots = new HashMap<>();
 
-        this.slots = rows * GUI_WIDTH;
-        this.setSize(new Vector2i(GUI_WIDTH, rows));
+        this.name = name;
+        this.numberOfSlots = rows * INVENTORY_WIDTH;
+        this.setSize(new Vector2i(INVENTORY_WIDTH, rows));
     }
 
     public void putWidget(Vector2i position, Widget widget) {
         Vector2i widgetSize = widget.getSize();
-        Set<Vector2i> widgetSlots = new HashSet<>();
+        Map<Vector2i, Widget> addSlots = new HashMap<>();
         for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
             for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
-                if (widgets.containsKey(new Vector2i(x, y))) {
-                    Bukkit.getLogger().warning("Tried to place widget overlapping already occupied slot.");
+                if (widgetSlots.containsKey(new Vector2i(x, y))) {
+                    MystiGui.pluginLogger().warn("Tried to place widget overlapping already occupied slot.");
                     return;
                 }
-                widgetSlots.add(new Vector2i(x, y));
+                addSlots.put(new Vector2i(x, y), widget);
             }
         }
         widgets.put(position, widget);
-        blockedSlots.addAll(widgetSlots);
+        widgetSlots.putAll(addSlots);
     }
 
-    public Map<Vector2i, ItemStack> render() {
+    private Map<Vector2i, ItemStack> render(Map<Vector2i, Widget> widgets) {
         Map<Vector2i, ItemStack> renderedItems = new HashMap<>();
         for (Map.Entry<Vector2i, Widget> widgetEntry : widgets.entrySet()) {
             Vector2i widgetPosition = widgetEntry.getKey();
@@ -66,12 +68,46 @@ public class Gui extends Widget {
         return renderedItems;
     }
 
-    public Inventory renderInventory() {
-        Inventory inventory = Bukkit.createInventory(null, slots, Component.text("Inventory"));
-        render().forEach((vector2i, itemStack) -> {
-            inventory.setItem(vectorToIndex(vector2i), itemStack);
-        });
-        return inventory;
+    @Override
+    public Map<Vector2i, ItemStack> render() {
+        return render(widgets);
+    }
+
+    public GuiHolder renderInventory() {
+        return new GuiHolder();
+    }
+
+    public class GuiHolder implements InventoryHolder {
+
+        private final Inventory inventory;
+
+        private final Map<Vector2i, Widget> guiWidgets;
+
+        private GuiHolder() {
+            guiWidgets = new HashMap<>();
+            cacheWidgets();
+            this.inventory = Bukkit.createInventory(this, numberOfSlots, name);
+            loadInventory();
+        }
+
+        private void cacheWidgets() {
+            widgets.forEach((vector2i, widget) -> {
+                guiWidgets.put(vector2i, widget.clone());
+            });
+        }
+
+        private void loadInventory() {
+            ItemStack[] items = new ItemStack[inventory.getSize()];
+            render(guiWidgets).forEach((vector2i, itemStack) -> {
+                items[vectorToIndex(vector2i)] = itemStack.clone();
+            });
+            this.inventory.setContents(items);
+        }
+
+        @Override
+        public @NotNull Inventory getInventory() {
+            return this.inventory;
+        }
     }
 
 }
