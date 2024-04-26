@@ -2,6 +2,7 @@ package io.github.mystievous.mystigui.widget;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;
 
@@ -39,6 +40,15 @@ public class ListWidget extends Widget {
         this.page = page;
     }
 
+    public void previousPage() {
+        page = Math.max(page - 1, 0);
+        onChange();
+    }
+
+    public void nextPage() {
+        page = Math.min(page + 1, getPageForIndex(items.size() - 1));
+        onChange();
+    }
 
     public int getPageForIndex(int index) {
         if (index < getArea()) {
@@ -82,6 +92,22 @@ public class ListWidget extends Widget {
         for (int i = startIndex; i < endIndex; i++) {
             ItemWidget itemWidget = items.get(i);
             renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
+        }
+        if (page == 1 && items.size() > getArea()) {
+            ItemWidget nextPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
+            nextPageWidget.setClickAction(event -> {
+                nextPage();
+            });
+            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget);
+        }
+        if (page > 1) {
+            ItemWidget nextPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
+            nextPageWidget.setClickAction(event -> nextPage());
+
+            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget);
+            ItemWidget lastPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
+            lastPageWidget.setClickAction(event -> previousPage());
+            renderedItems.put(new Vector2i(getSize().x() - 2, getSize().y() - 1), lastPageWidget);
         }
         return renderedItems;
     }

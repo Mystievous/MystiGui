@@ -1,17 +1,29 @@
 package io.github.mystievous.mystigui.widget;
 
+import io.github.mystievous.mystigui.Gui;
 import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.Map;
 
 public abstract class Widget implements Cloneable {
 
+    @Nullable
+    private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
     public Widget() {
         size = new Vector2i(1,1);
+    }
+
+    public void setGuiHolder(@Nullable Gui.GuiHolder guiHolder) {
+        this.guiHolder = guiHolder;
+    }
+
+    @Nullable
+    public Gui.GuiHolder getGuiHolder() {
+        return guiHolder;
     }
 
     public int getArea() {
@@ -39,15 +51,15 @@ public abstract class Widget implements Cloneable {
         return y * getSize().x() + x;
     }
 
-    public boolean emitChange() {
-        WidgetChangeEvent event = new WidgetChangeEvent(this);
-        Bukkit.getPluginManager().callEvent(event);
-        return event.isCancelled();
+    public void onChange() {
+        if (guiHolder != null) {
+            guiHolder.loadInventory();
+        }
     }
 
     /**
      * All widgets should render down to the most basic `ItemWidget`
-     * @return
+     * @return positions of all the rendered widgets
      */
     public abstract Map<Vector2i, ItemWidget> render();
 

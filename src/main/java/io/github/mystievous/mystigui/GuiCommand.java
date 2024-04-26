@@ -17,7 +17,7 @@ public class GuiCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Gui gui = new Gui(Component.text("name"), 6);
+        Gui gui = new Gui(Component.text("name"), 5);
 
         ListWidget widget = new ListWidget(new Vector2i(4, 3));
         ItemWidget stick = new ItemWidget(new ItemStack(Material.STICK));
@@ -38,7 +38,8 @@ public class GuiCommand implements CommandExecutor {
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
-        gui.putWidget(new Vector2i(2, 3), widget);
+        gui.putWidget(new Vector2i(0, 2), widget);
+        gui.putWidget(new Vector2i(3, 2), widget);
 
         ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.BROWN_BANNER));
         gui.putWidget(new Vector2i(1, 1), itemWidget);

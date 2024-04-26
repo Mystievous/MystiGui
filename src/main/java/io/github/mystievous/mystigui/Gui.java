@@ -99,11 +99,13 @@ public class Gui extends Widget {
 
         private void cacheWidgets() {
             widgets.forEach((vector2i, widget) -> {
-                guiWidgets.put(vector2i, widget.clone());
+                Widget cacheWidget = widget.clone();
+                cacheWidget.setGuiHolder(this);
+                guiWidgets.put(vector2i, cacheWidget);
             });
         }
 
-        private void loadInventory() {
+        public void loadInventory() {
             ItemStack[] items = new ItemStack[inventory.getSize()];
             render(guiWidgets).forEach((vector2i, itemWidget) -> {
                 ItemWidget.ClickAction clickAction = itemWidget.getClickAction();
