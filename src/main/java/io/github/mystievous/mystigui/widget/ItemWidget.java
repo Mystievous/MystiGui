@@ -3,7 +3,6 @@ package io.github.mystievous.mystigui.widget;
 import io.github.mystievous.mysticore.NBTUtils;
 import io.github.mystievous.mystigui.MystiGui;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector2i;

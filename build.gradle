@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
-    compileOnly "io.github.mystievous:mysticore:1.1.14"
+    compileOnly "io.github.mystievous:mysticore:1.2.5"
 }
 
 def targetJavaVersion = 17

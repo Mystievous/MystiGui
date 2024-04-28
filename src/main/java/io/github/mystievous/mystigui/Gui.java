@@ -1,11 +1,9 @@
 package io.github.mystievous.mystigui;
 
-import io.github.mystievous.mysticore.NBTUtils;
 import io.github.mystievous.mystigui.widget.ItemWidget;
 import io.github.mystievous.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;

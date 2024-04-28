@@ -39,6 +39,7 @@ public class GuiCommand implements CommandExecutor {
         widget.addItem(new ItemStack(Material.TNT));
         widget.addItem(new ItemStack(Material.TNT));
         gui.putWidget(new Vector2i(0, 2), widget);
+        gui.putWidget(new Vector2i(5, 2), widget);
 
         ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.BROWN_BANNER));
         gui.putWidget(new Vector2i(1, 1), itemWidget);

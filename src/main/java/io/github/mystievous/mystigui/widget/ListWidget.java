@@ -1,9 +1,13 @@
 package io.github.mystievous.mystigui.widget;
 
+import io.github.mystievous.mysticore.ItemUtil;
+import io.github.mystievous.mysticore.Palette;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;
@@ -46,8 +50,12 @@ public class ListWidget extends Widget {
     }
 
     public void nextPage() {
-        page = Math.min(page + 1, getPageForIndex(items.size() - 1));
+        page = Math.min(page + 1, getMaxPage());
         onChange();
+    }
+
+    public int getMaxPage() {
+        return getPageForIndex(items.size() - 1);
     }
 
     public int getPageForIndex(int index) {
@@ -60,8 +68,7 @@ public class ListWidget extends Widget {
 
     public int maxItemsInPage(int page) {
         if (page == 1) {
-            int maxPage = getPageForIndex(items.size() - 1);
-            if (maxPage == 1) {
+            if (getMaxPage() == 1) {
                 return getArea();
             }
             return getArea() - 1;
@@ -83,6 +90,38 @@ public class ListWidget extends Widget {
         return (getArea() - 1) + ((getArea() - 2) * page);
     }
 
+    private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
+        leatherArmorMeta.setColor(enabled ? Palette.PRIMARY.toBukkitColor() : Palette.GRAYED_OUT.toBukkitColor());
+        leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
+        leatherArmorMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+    }
+
+    private ItemWidget nextPageWidget(boolean enabled) {
+        ItemStack arrowItem = ItemUtil.createItem(Component.text("Next Page"), Material.LEATHER_BOOTS, 2);
+        arrowItem.editMeta(itemMeta -> {
+            if (!(itemMeta instanceof LeatherArmorMeta leatherArmorMeta)) return;
+            setPageButtonColor(leatherArmorMeta, enabled);
+        });
+        ItemWidget nextPageWidget = new ItemWidget(arrowItem);
+        nextPageWidget.setClickAction(event -> {
+            nextPage();
+        });
+        return nextPageWidget;
+    }
+
+    private ItemWidget previousPageWidget(boolean enabled) {
+        ItemStack arrowItem = ItemUtil.createItem(Component.text("Previous Page"), Material.LEATHER_BOOTS, 1);
+        arrowItem.editMeta(itemMeta -> {
+            if (!(itemMeta instanceof LeatherArmorMeta leatherArmorMeta)) return;
+            setPageButtonColor(leatherArmorMeta, enabled);
+        });
+        ItemWidget previousPageWidget = new ItemWidget(arrowItem);
+        previousPageWidget.setClickAction(event -> {
+            previousPage();
+        });
+        return previousPageWidget;
+    }
+
     @Override
     public Map<Vector2i, ItemWidget> render() {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
@@ -93,21 +132,14 @@ public class ListWidget extends Widget {
             ItemWidget itemWidget = items.get(i);
             renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
         }
+        boolean hasMorePages = getMaxPage() > page;
         if (page == 1 && items.size() > getArea()) {
-            ItemWidget nextPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
-            nextPageWidget.setClickAction(event -> {
-                nextPage();
-            });
-            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget);
+            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget(hasMorePages));
         }
         if (page > 1) {
-            ItemWidget nextPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
-            nextPageWidget.setClickAction(event -> nextPage());
+            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget(hasMorePages));
 
-            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget);
-            ItemWidget lastPageWidget = new ItemWidget(new ItemStack(Material.ARROW));
-            lastPageWidget.setClickAction(event -> previousPage());
-            renderedItems.put(new Vector2i(getSize().x() - 2, getSize().y() - 1), lastPageWidget);
+            renderedItems.put(new Vector2i(getSize().x() - 2, getSize().y() - 1), previousPageWidget(true));
         }
         return renderedItems;
     }
