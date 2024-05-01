@@ -27,6 +27,11 @@ public class ListWidget extends Widget {
         setSize(size);
     }
 
+    @Override
+    public void setSize(Vector2i size) {
+        super.setSize(size);
+    }
+
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
     }

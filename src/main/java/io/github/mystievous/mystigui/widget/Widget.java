@@ -34,7 +34,7 @@ public abstract class Widget implements Cloneable {
         return size;
     }
 
-    public void setSize(Vector2i size) {
+    protected void setSize(Vector2i size) {
         this.size = size;
     }
 
