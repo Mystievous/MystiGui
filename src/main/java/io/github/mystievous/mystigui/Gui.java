@@ -1,5 +1,6 @@
 package io.github.mystievous.mystigui;
 
+import io.github.mystievous.mysticore.NBTUtils;
 import io.github.mystievous.mysticore.interact.UsableItemManager;
 import io.github.mystievous.mystigui.widget.ItemWidget;
 import io.github.mystievous.mystigui.widget.Widget;
@@ -37,7 +38,8 @@ public class Gui extends Widget {
     }
 
     public UsableItem createShortcutItem(String tag, ItemStack template) {
-        return UsableItemManager.createItem(tag, template, playerInteractEvent -> {
+        ItemStack item = NBTUtils.setNoUse(template.clone());
+        return UsableItemManager.createItem(tag, item, playerInteractEvent -> {
             playerInteractEvent.getPlayer().openInventory(renderInventory());
         });
     }
