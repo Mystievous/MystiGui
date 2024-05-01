@@ -27,12 +27,6 @@ public final class MystiGui extends JavaPlugin {
 
         me = this;
 
-        GuiCommand command = new GuiCommand();
-        PluginCommand pluginCommand = Bukkit.getPluginCommand("gui");
-        if (pluginCommand != null) {
-            pluginCommand.setExecutor(command);
-        }
-
         GuiListener guiListener = new GuiListener();
         Bukkit.getPluginManager().registerEvents(guiListener, this);
 

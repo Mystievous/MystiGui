@@ -7,6 +7,3 @@ authors: [ Mystievous ]
 description: Mystievous' GUI Library
 depend:
   - MystiCore
-commands:
-  gui:
-    description: gui command
