@@ -1,5 +1,6 @@
 package io.github.mystievous.mystigui;
 
+import io.github.mystievous.mysticore.interact.UsableItemManager;
 import io.github.mystievous.mystigui.widget.ItemWidget;
 import io.github.mystievous.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
@@ -10,6 +11,8 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
+
+import static io.github.mystievous.mysticore.interact.UsableItemManager.UsableItem;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -31,6 +34,12 @@ public class Gui extends Widget {
         this.name = name;
         this.numberOfSlots = rows * INVENTORY_WIDTH;
         this.setSize(new Vector2i(INVENTORY_WIDTH, rows));
+    }
+
+    public UsableItem createShortcutItem(String tag, ItemStack template) {
+        return UsableItemManager.createItem(tag, template, playerInteractEvent -> {
+            playerInteractEvent.getPlayer().openInventory(renderInventory());
+        });
     }
 
     public void putWidget(Vector2i position, Widget widget) {
@@ -75,8 +84,8 @@ public class Gui extends Widget {
         return render(widgets);
     }
 
-    public GuiHolder renderInventory() {
-        return new GuiHolder();
+    public Inventory renderInventory() {
+        return new GuiHolder().getInventory();
     }
 
     public class GuiHolder implements InventoryHolder {
