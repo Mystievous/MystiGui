@@ -1,5 +1,6 @@
 name: MystiGui
 version: '${version}'
+prefix: "MystiGui"
 main: io.github.mystievous.mystigui.MystiGui
 api-version: 1.19
 authors: [ Mystievous ]
