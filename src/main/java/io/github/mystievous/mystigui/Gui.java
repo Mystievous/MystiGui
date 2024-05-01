@@ -22,8 +22,8 @@ public class Gui extends Widget {
 
     public static final int INVENTORY_WIDTH = 9;
 
-    private final Map<Vector2i, Widget> widgets;
-    private final Map<Vector2i, Widget> widgetSlots;
+    private final Map<Integer, Map<Vector2i, Widget>> widgets;
+    private final Map<Integer, Map<Vector2i, Widget>> widgetSlots;
     private final int numberOfSlots;
     private final Component name;
 
@@ -44,40 +44,52 @@ public class Gui extends Widget {
         });
     }
 
-    public void putWidget(Vector2i position, Widget widget) {
+    public void putWidget(int layer, Vector2i position, Widget widget) {
         Vector2i widgetSize = widget.getSize();
         Map<Vector2i, Widget> addSlots = new HashMap<>();
+        var layerWidgetSlots = widgetSlots.getOrDefault(layer, new HashMap<>());
         for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
             for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
-                if (widgetSlots.containsKey(new Vector2i(x, y))) {
+                if (layerWidgetSlots.containsKey(new Vector2i(x, y))) {
                     MystiGui.pluginLogger().warn("Tried to place widget overlapping already occupied slot.");
                     return;
                 }
                 addSlots.put(new Vector2i(x, y), widget);
             }
         }
-        widgets.put(position, widget);
-        widgetSlots.putAll(addSlots);
+        var layerWidgets = widgets.getOrDefault(layer, new HashMap<>());
+        layerWidgets.put(position, widget);
+        widgets.put(layer, layerWidgets);
+
+        layerWidgetSlots.putAll(addSlots);
+        widgetSlots.put(layer, layerWidgetSlots);
     }
 
-    private Map<Vector2i, ItemWidget> render(Map<Vector2i, Widget> widgets) {
+    public void putWidget(Vector2i position, Widget widget) {
+        putWidget(0, position, widget);
+    }
+
+    private Map<Vector2i, ItemWidget> render(Map<Integer, Map<Vector2i, Widget>> widgets) {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
-        for (Map.Entry<Vector2i, Widget> widgetEntry : widgets.entrySet()) {
-            Vector2i widgetPosition = widgetEntry.getKey();
-            Widget widget = widgetEntry.getValue();
+        var layers = new ArrayList<>(widgets.entrySet());
+        layers.sort(Comparator.comparingInt(Map.Entry::getKey));
+        layers.forEach(layer -> {
+            for (Map.Entry<Vector2i, Widget> widgetEntry : layer.getValue().entrySet()) {
+                Vector2i widgetPosition = widgetEntry.getKey();
+                Widget widget = widgetEntry.getValue();
 
-            Map<Vector2i, ItemWidget> items = widget.render();
+                Map<Vector2i, ItemWidget> items = widget.render();
 
-            for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
-                Vector2i itemPosition = itemEntry.getKey();
-                ItemWidget itemValue = itemEntry.getValue();
+                for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
+                    Vector2i itemPosition = itemEntry.getKey();
+                    ItemWidget itemValue = itemEntry.getValue();
 
-                Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
+                    Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
 
-                renderedItems.put(pos, itemValue);
+                    renderedItems.put(pos, itemValue);
+                }
             }
-
-        }
+        });
         return renderedItems;
     }
 
@@ -94,7 +106,7 @@ public class Gui extends Widget {
 
         private final Inventory inventory;
 
-        private final Map<Vector2i, Widget> guiWidgets;
+        private final Map<Integer, Map<Vector2i, Widget>> guiWidgets;
 
         private final Map<UUID, Consumer<InventoryClickEvent>> clickActions;
 
@@ -107,10 +119,16 @@ public class Gui extends Widget {
         }
 
         private void cacheWidgets() {
-            widgets.forEach((vector2i, widget) -> {
-                Widget cacheWidget = widget.clone();
-                cacheWidget.setGuiHolder(this);
-                guiWidgets.put(vector2i, cacheWidget);
+            var layers = new ArrayList<>(widgets.entrySet());
+            layers.sort(Comparator.comparingInt(Map.Entry::getKey));
+            layers.forEach(layer -> {
+                var layerWidgets = guiWidgets.getOrDefault(layer.getKey(), new HashMap<>());
+                layer.getValue().forEach((vector2i, widget) -> {
+                    Widget cacheWidget = widget.clone();
+                    cacheWidget.setGuiHolder(this);
+                    layerWidgets.put(vector2i, cacheWidget);
+                });
+                guiWidgets.put(layer.getKey(), layerWidgets);
             });
         }
 
