@@ -13,10 +13,6 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
-    @ApiStatus.Experimental
-    @Nullable
-    private Runnable onBeforeRender;
-
     public Widget() {
         size = new Vector2i(1,1);
     }
@@ -40,17 +36,6 @@ public abstract class Widget implements Cloneable {
 
     protected void setSize(Vector2i size) {
         this.size = size;
-    }
-
-    @ApiStatus.Experimental
-    public void setBeforeRender(@Nullable Runnable beforeRender) {
-        onBeforeRender = beforeRender;
-    }
-
-    @ApiStatus.Experimental
-    @Nullable
-    public Runnable getBeforeRender() {
-        return onBeforeRender;
     }
 
     protected Vector2i indexToVector(int index) {

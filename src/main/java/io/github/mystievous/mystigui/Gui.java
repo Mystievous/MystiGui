@@ -17,6 +17,7 @@ import static io.github.mystievous.mysticore.interact.UsableItemManager.UsableIt
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Gui extends Widget {
 
@@ -37,10 +38,10 @@ public class Gui extends Widget {
         this.setSize(new Vector2i(INVENTORY_WIDTH, rows));
     }
 
-    public UsableItem createShortcutItem(String tag, ItemStack template) {
+    public static UsableItem createShortcutItem(String tag, ItemStack template, Supplier<Gui> getGui) {
         ItemStack item = NBTUtils.setNoUse(template.clone());
         return UsableItemManager.createItem(tag, item, playerInteractEvent -> {
-            playerInteractEvent.getPlayer().openInventory(renderInventory());
+            playerInteractEvent.getPlayer().openInventory(getGui.get().renderInventory());
         });
     }
 

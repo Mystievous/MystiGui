@@ -2,7 +2,9 @@ package io.github.mystievous.mystigui.widget;
 
 import io.github.mystievous.mysticore.ItemUtil;
 import io.github.mystievous.mysticore.Palette;
+import io.github.mystievous.mystigui.MystiGui;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -11,13 +13,14 @@ import org.joml.Vector2i;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ListWidget extends Widget {
 
     private List<ItemWidget> items;
 
     private int page;
+
+    private boolean clearEmptySpaces;
 
     public ListWidget(Vector2i size) {
         super();
@@ -34,19 +37,10 @@ public class ListWidget extends Widget {
         return listWidget;
     }
 
-    public static <T> ListWidget fromCollection(Vector2i size, Supplier<Collection<T>> getCollection, Function<T, ItemWidget> toWidget) {
+    public static <T> ListWidget fromCollection(Vector2i size, Collection<T> collection, Function<? super T, ItemWidget> toWidget) {
         ListWidget listWidget = new ListWidget(size);
-        Runnable loadList = () -> {
-            listWidget.items.clear();
-            listWidget.addAll(getCollection.get().stream().map(toWidget).toList());
-        };
-        loadList.run();
-        listWidget.setBeforeRender(loadList);
+        listWidget.addAll(collection.stream().map(toWidget).toList());
         return listWidget;
-    }
-
-    public static <T> ListWidget fromCollection(Vector2i size, Collection<T> collection, Function<T, ItemWidget> toWidget) {
-        return fromCollection(size, () -> collection, toWidget);
     }
 
     @Override
@@ -58,8 +52,8 @@ public class ListWidget extends Widget {
         items.add(itemWidget);
     }
 
-    public void clear() {
-        items.clear();
+    public void setClearEmptySpaces(boolean clearEmptySpaces) {
+        this.clearEmptySpaces = clearEmptySpaces;
     }
 
     public void addAll(Collection<ItemWidget> widgets) {
@@ -121,7 +115,7 @@ public class ListWidget extends Widget {
             return getArea() - 1;
         }
 
-        return (getArea() - 1) + ((getArea() - 2) * page);
+        return (getArea() - 1) + ((getArea() - 2) * (page - 2));
     }
 
     private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
@@ -158,16 +152,20 @@ public class ListWidget extends Widget {
 
     @Override
     public Map<Vector2i, ItemWidget> render() {
-        Runnable beforeRender = getBeforeRender();
-        if (beforeRender != null) beforeRender.run();
-
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
         int startIndex = pageStartIndex(page);
-        int endIndex = Math.min(startIndex + maxItemsInPage(page), items.size());
+        int maxItemsInPage = maxItemsInPage(page);
+        int endIndex = Math.min(startIndex + maxItemsInPage, items.size());
         for (int i = startIndex; i < endIndex; i++) {
             ItemWidget itemWidget = items.get(i);
             renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
+        }
+        if (clearEmptySpaces) {
+            for (int i = endIndex; i < startIndex + maxItemsInPage; i++) {
+                ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.AIR));
+                renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
+            }
         }
         boolean hasMorePages = getMaxPage() > page;
         if (page == 1 && items.size() > getArea()) {
