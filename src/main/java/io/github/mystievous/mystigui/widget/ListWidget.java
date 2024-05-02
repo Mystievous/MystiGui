@@ -120,15 +120,13 @@ public class ListWidget extends Widget {
 
     private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
         leatherArmorMeta.setColor(enabled ? Palette.PRIMARY.toBukkitColor() : Palette.GRAYED_OUT.toBukkitColor());
-        leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
-        leatherArmorMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        ItemUtil.hideExtraTooltip(leatherArmorMeta);
     }
 
     private ItemWidget nextPageWidget(boolean enabled) {
         ItemStack arrowItem = ItemUtil.createItem(Component.text("Next Page"), Material.LEATHER_BOOTS, 2);
-        arrowItem.editMeta(itemMeta -> {
-            if (!(itemMeta instanceof LeatherArmorMeta leatherArmorMeta)) return;
-            setPageButtonColor(leatherArmorMeta, enabled);
+        arrowItem.editMeta(LeatherArmorMeta.class, itemMeta -> {
+            setPageButtonColor(itemMeta, enabled);
         });
         ItemWidget nextPageWidget = new ItemWidget(arrowItem);
         nextPageWidget.setClickAction(event -> {
