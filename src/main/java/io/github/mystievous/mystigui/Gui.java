@@ -74,6 +74,18 @@ public class Gui extends Widget {
         putWidget(0, position, widget);
     }
 
+    public void putLayer(int layer, Map<Vector2i, Widget> widgetMap) {
+        widgetMap.forEach((widgetPos, widget) -> putWidget(layer, widgetPos, widget));
+    }
+
+    public void putLayer(Map<Vector2i, Widget> widgetMap) {
+        putLayer(0, widgetMap);
+    }
+
+    public void putAll(Map<Integer, Map<Vector2i, Widget>> layerMap) {
+        layerMap.forEach(this::putLayer);
+    }
+
     private Map<Vector2i, ItemWidget> render(Map<Integer, Map<Vector2i, Widget>> widgets) {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
         var layers = new ArrayList<>(widgets.entrySet());
