@@ -56,7 +56,7 @@ public class ItemWidget extends Widget {
 
     @Override
     public Map<Vector2i, ItemWidget> render() {
-        Runnable beforeRender = beforeRender();
+        Runnable beforeRender = getBeforeRender();
         if (beforeRender != null) beforeRender.run();
         Map<Vector2i, ItemWidget> output = new HashMap<>();
         output.put(new Vector2i(), this);

@@ -11,6 +11,7 @@ import org.joml.Vector2i;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ListWidget extends Widget {
 
@@ -33,10 +34,19 @@ public class ListWidget extends Widget {
         return listWidget;
     }
 
-    public static <T> ListWidget fromCollection(Vector2i size, Collection<T> collection, Function<T, ItemWidget> toWidget) {
+    public static <T> ListWidget fromCollection(Vector2i size, Supplier<Collection<T>> getCollection, Function<T, ItemWidget> toWidget) {
         ListWidget listWidget = new ListWidget(size);
-        listWidget.addAll(collection.stream().map(toWidget).toList());
+        Runnable loadList = () -> {
+            listWidget.items.clear();
+            listWidget.addAll(getCollection.get().stream().map(toWidget).toList());
+        };
+        loadList.run();
+        listWidget.setBeforeRender(loadList);
         return listWidget;
+    }
+
+    public static <T> ListWidget fromCollection(Vector2i size, Collection<T> collection, Function<T, ItemWidget> toWidget) {
+        return fromCollection(size, () -> collection, toWidget);
     }
 
     @Override
@@ -46,6 +56,10 @@ public class ListWidget extends Widget {
 
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
+    }
+
+    public void clear() {
+        items.clear();
     }
 
     public void addAll(Collection<ItemWidget> widgets) {
@@ -144,7 +158,7 @@ public class ListWidget extends Widget {
 
     @Override
     public Map<Vector2i, ItemWidget> render() {
-        Runnable beforeRender = beforeRender();
+        Runnable beforeRender = getBeforeRender();
         if (beforeRender != null) beforeRender.run();
 
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();

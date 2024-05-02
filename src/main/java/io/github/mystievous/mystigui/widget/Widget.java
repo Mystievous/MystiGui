@@ -1,6 +1,7 @@
 package io.github.mystievous.mystigui.widget;
 
 import io.github.mystievous.mystigui.Gui;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
@@ -12,6 +13,7 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
+    @ApiStatus.Experimental
     @Nullable
     private Runnable onBeforeRender;
 
@@ -40,12 +42,14 @@ public abstract class Widget implements Cloneable {
         this.size = size;
     }
 
-    public void beforeRender(Runnable beforeRender) {
+    @ApiStatus.Experimental
+    public void setBeforeRender(@Nullable Runnable beforeRender) {
         onBeforeRender = beforeRender;
     }
 
+    @ApiStatus.Experimental
     @Nullable
-    public Runnable beforeRender() {
+    public Runnable getBeforeRender() {
         return onBeforeRender;
     }
 
