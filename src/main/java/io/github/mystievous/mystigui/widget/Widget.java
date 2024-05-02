@@ -1,7 +1,6 @@
 package io.github.mystievous.mystigui.widget;
 
 import io.github.mystievous.mystigui.Gui;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
@@ -12,6 +11,9 @@ public abstract class Widget implements Cloneable {
     @Nullable
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
+
+    @Nullable
+    private Runnable onBeforeRender;
 
     public Widget() {
         size = new Vector2i(1,1);
@@ -36,6 +38,15 @@ public abstract class Widget implements Cloneable {
 
     protected void setSize(Vector2i size) {
         this.size = size;
+    }
+
+    public void beforeRender(Runnable beforeRender) {
+        onBeforeRender = beforeRender;
+    }
+
+    @Nullable
+    public Runnable beforeRender() {
+        return onBeforeRender;
     }
 
     protected Vector2i indexToVector(int index) {

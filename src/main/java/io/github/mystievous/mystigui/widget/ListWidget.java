@@ -144,6 +144,9 @@ public class ListWidget extends Widget {
 
     @Override
     public Map<Vector2i, ItemWidget> render() {
+        Runnable beforeRender = beforeRender();
+        if (beforeRender != null) beforeRender.run();
+
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
         int startIndex = pageStartIndex(page);
