@@ -9,10 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.joml.Vector2i;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 public class ListWidget extends Widget {
 
@@ -35,6 +33,12 @@ public class ListWidget extends Widget {
         return listWidget;
     }
 
+    public static <T> ListWidget fromCollection(Vector2i size, Collection<T> collection, Function<T, ItemWidget> toWidget) {
+        ListWidget listWidget = new ListWidget(size);
+        listWidget.addAll(collection.stream().map(toWidget).toList());
+        return listWidget;
+    }
+
     @Override
     public void setSize(Vector2i size) {
         super.setSize(size);
@@ -42,6 +46,10 @@ public class ListWidget extends Widget {
 
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
+    }
+
+    public void addAll(Collection<ItemWidget> widgets) {
+        items.addAll(widgets);
     }
 
     public void addItem(ItemStack itemStack) {

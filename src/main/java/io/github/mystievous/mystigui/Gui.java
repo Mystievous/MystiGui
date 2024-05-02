@@ -50,8 +50,12 @@ public class Gui extends Widget {
         var layerWidgetSlots = widgetSlots.getOrDefault(layer, new HashMap<>());
         for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
             for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
+                if (x < 0 || x >= getSize().x() || y < 0 || y >= getSize().y()) {
+                    MystiGui.pluginLogger().warn("Tried to place widget outside of gui bounds.");
+                    return;
+                }
                 if (layerWidgetSlots.containsKey(new Vector2i(x, y))) {
-                    MystiGui.pluginLogger().warn("Tried to place widget overlapping already occupied slot.");
+                    MystiGui.pluginLogger().warn("Tried to place widget overlapping an already occupied slot in the layer.");
                     return;
                 }
                 addSlots.put(new Vector2i(x, y), widget);
