@@ -1,7 +1,6 @@
-package io.github.mystievous.mystigui.widget;
+package com.starseekstudios.mystigui.widget;
 
-import io.github.mystievous.mystigui.Gui;
-import org.jetbrains.annotations.ApiStatus;
+import com.starseekstudios.mystigui.Gui;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 

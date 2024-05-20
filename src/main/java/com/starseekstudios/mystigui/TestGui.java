@@ -1,6 +1,6 @@
-package io.github.mystievous.mystigui;
+package com.starseekstudios.mystigui;
 
-import io.github.mystievous.mysticore.NBTUtils;
+import com.starseekstudios.mysticore.NBTUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

@@ -1,9 +1,9 @@
-package io.github.mystievous.mystigui;
+package com.starseekstudios.mystigui;
 
-import io.github.mystievous.mysticore.NBTUtils;
-import io.github.mystievous.mysticore.interact.UsableItemManager;
-import io.github.mystievous.mystigui.widget.ItemWidget;
-import io.github.mystievous.mystigui.widget.Widget;
+import com.starseekstudios.mystigui.widget.Widget;
+import com.starseekstudios.mysticore.NBTUtils;
+import com.starseekstudios.mysticore.interact.UsableItemManager;
+import com.starseekstudios.mystigui.widget.ItemWidget;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
-import static io.github.mystievous.mysticore.interact.UsableItemManager.UsableItem;
+import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableItem;
 
 import java.util.*;
 import java.util.function.Consumer;

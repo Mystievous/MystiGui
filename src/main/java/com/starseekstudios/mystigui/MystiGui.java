@@ -1,8 +1,7 @@
-package io.github.mystievous.mystigui;
+package com.starseekstudios.mystigui;
 
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MystiGui extends JavaPlugin {

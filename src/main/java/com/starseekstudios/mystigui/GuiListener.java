@@ -1,4 +1,4 @@
-package io.github.mystievous.mystigui;
+package com.starseekstudios.mystigui;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

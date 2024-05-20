@@ -1,7 +1,7 @@
-package io.github.mystievous.mystigui.widget;
+package com.starseekstudios.mystigui.widget;
 
-import io.github.mystievous.mysticore.NBTUtils;
-import io.github.mystievous.mystigui.MystiGui;
+import com.starseekstudios.mysticore.NBTUtils;
+import com.starseekstudios.mystigui.MystiGui;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;

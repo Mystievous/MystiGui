@@ -1,7 +1,7 @@
 name: MystiGui
 version: '${version}'
 prefix: "MystiGui"
-main: io.github.mystievous.mystigui.MystiGui
+main: com.starseekstudios.mystigui.MystiGui
 api-version: 1.19
 authors: [ Mystievous ]
 description: Mystievous' GUI Library

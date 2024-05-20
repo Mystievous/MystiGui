@@ -1,12 +1,9 @@
-package io.github.mystievous.mystigui.widget;
+package com.starseekstudios.mystigui.widget;
 
-import io.github.mystievous.mysticore.ItemUtil;
-import io.github.mystievous.mysticore.Palette;
-import io.github.mystievous.mystigui.MystiGui;
+import com.starseekstudios.mysticore.ItemUtil;
+import com.starseekstudios.mysticore.Palette;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.joml.Vector2i;
@@ -119,7 +116,7 @@ public class ListWidget extends Widget {
     }
 
     private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
-        leatherArmorMeta.setColor(enabled ? Palette.PRIMARY.toBukkitColor() : Palette.GRAYED_OUT.toBukkitColor());
+        leatherArmorMeta.setColor(enabled ? Palette.PRIMARY.toBukkitColor() : Palette.DISABLED.toBukkitColor());
         ItemUtil.hideExtraTooltip(leatherArmorMeta);
     }
 
