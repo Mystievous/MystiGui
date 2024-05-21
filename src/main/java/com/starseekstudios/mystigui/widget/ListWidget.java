@@ -13,7 +13,9 @@ import java.util.function.Function;
 
 public class ListWidget extends Widget {
 
-    private List<ItemWidget> items;
+    private List<ItemWidget> items = new ArrayList<>();
+
+    private HashMap<Vector2i, ItemWidget> placedItems = new HashMap<>();
 
     private int page;
 
@@ -22,8 +24,8 @@ public class ListWidget extends Widget {
     public ListWidget(Vector2i size) {
         super();
         page = 1;
-        this.items = new ArrayList<>();
         setSize(size);
+        setShowPageButtons(true);
     }
 
     public static ListWidget filled(Vector2i size, ItemWidget itemWidget) {
@@ -31,6 +33,7 @@ public class ListWidget extends Widget {
         for (int i = 0; i < listWidget.getArea(); i++) {
             listWidget.addWidget(itemWidget);
         }
+        listWidget.setShowPageButtons(false);
         return listWidget;
     }
 
@@ -47,6 +50,16 @@ public class ListWidget extends Widget {
 
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
+    }
+
+    public void setShowPageButtons(boolean showPageButtons) {
+        if (showPageButtons) {
+            placedItems.put(getSize().sub(2, 0), previousPageWidget(getPage() > 1));
+            placedItems.put(getSize().sub(1, 0), nextPageWidget(getPage() < getMaxPage()));
+        } else {
+            placedItems.remove(getSize().sub(2, 0));
+            placedItems.remove(getSize().sub(1, 0));
+        }
     }
 
     public void setClearEmptySpaces(boolean clearEmptySpaces) {
@@ -83,36 +96,16 @@ public class ListWidget extends Widget {
         return getPageForIndex(items.size() - 1);
     }
 
-    public int getPageForIndex(int index) {
-        if (index < getArea()) {
-            return 1;
-        }
-
-        return (int) Math.ceil((float) ((index + 1) + 1 - getArea()) / (getArea() - 2)) + 1;
+    public int getItemsPerPage() {
+        return getArea() - placedItems.size();
     }
 
-    public int maxItemsInPage(int page) {
-        if (page == 1) {
-            if (getMaxPage() == 1) {
-                return getArea();
-            }
-            return getArea() - 1;
-        }
-
-        return getArea() - 2;
-
+    public int getPageForIndex(int index) {
+        return (int) Math.ceil((float) index / getItemsPerPage());
     }
 
     public int pageStartIndex(int page) {
-        if (page == 1) {
-            return 0;
-        }
-
-        if (page == 2) {
-            return getArea() - 1;
-        }
-
-        return (getArea() - 1) + ((getArea() - 2) * (page - 2));
+        return (page - 1) * getItemsPerPage();
     }
 
     private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
@@ -150,26 +143,31 @@ public class ListWidget extends Widget {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
         int startIndex = pageStartIndex(page);
-        int maxItemsInPage = maxItemsInPage(page);
-        int endIndex = Math.min(startIndex + maxItemsInPage, items.size());
+        int endIndex = Math.min(startIndex + getItemsPerPage(), items.size());
+        int offsetForPlacedItems = 0;
         for (int i = startIndex; i < endIndex; i++) {
             ItemWidget itemWidget = items.get(i);
-            renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
+            Vector2i position = indexToVector(i - startIndex + offsetForPlacedItems);
+            while (placedItems.containsKey(position)) {
+                renderedItems.put(position, placedItems.get(position));
+
+                offsetForPlacedItems++;
+                position = indexToVector(i - startIndex + offsetForPlacedItems);
+            }
+            renderedItems.put(position, itemWidget.render().get(new Vector2i()));
         }
         if (clearEmptySpaces) {
-            for (int i = endIndex; i < startIndex + maxItemsInPage; i++) {
+            for (int i = endIndex; i < startIndex + getItemsPerPage(); i++) {
                 ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.AIR));
-                renderedItems.put(indexToVector(i - startIndex), itemWidget.render().get(new Vector2i()));
-            }
-        }
-        boolean hasMorePages = getMaxPage() > page;
-        if (page == 1 && items.size() > getArea()) {
-            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget(hasMorePages));
-        }
-        if (page > 1) {
-            renderedItems.put(new Vector2i(getSize().x() - 1, getSize().y() - 1), nextPageWidget(hasMorePages));
+                Vector2i position = indexToVector(i - startIndex + offsetForPlacedItems);
+                while (placedItems.containsKey(position)) {
+                    renderedItems.put(position, placedItems.get(position));
 
-            renderedItems.put(new Vector2i(getSize().x() - 2, getSize().y() - 1), previousPageWidget(true));
+                    offsetForPlacedItems++;
+                    position = indexToVector(i - startIndex + offsetForPlacedItems);
+                }
+                renderedItems.put(position, itemWidget.render().get(new Vector2i()));
+            }
         }
         return renderedItems;
     }
