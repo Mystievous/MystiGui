@@ -1,11 +1,12 @@
 package com.starseekstudios.mystigui;
 
-import com.starseekstudios.mystigui.widget.Widget;
 import com.starseekstudios.mysticore.NBTUtils;
 import com.starseekstudios.mysticore.interact.UsableItemManager;
 import com.starseekstudios.mystigui.widget.ItemWidget;
+import com.starseekstudios.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -13,11 +14,11 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
-import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableItem;
-
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableItem;
 
 public class Gui extends Widget {
 
@@ -86,7 +87,7 @@ public class Gui extends Widget {
         layerMap.forEach(this::putLayer);
     }
 
-    private Map<Vector2i, ItemWidget> render(Map<Integer, Map<Vector2i, Widget>> widgets) {
+    private Map<Vector2i, ItemWidget> render(GuiHolder guiHolder, Map<Integer, Map<Vector2i, Widget>> widgets) {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
         var layers = new ArrayList<>(widgets.entrySet());
         layers.sort(Comparator.comparingInt(Map.Entry::getKey));
@@ -95,7 +96,7 @@ public class Gui extends Widget {
                 Vector2i widgetPosition = widgetEntry.getKey();
                 Widget widget = widgetEntry.getValue();
 
-                Map<Vector2i, ItemWidget> items = widget.render();
+                Map<Vector2i, ItemWidget> items = widget.render(guiHolder);
 
                 for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
                     Vector2i itemPosition = itemEntry.getKey();
@@ -110,29 +111,32 @@ public class Gui extends Widget {
         return renderedItems;
     }
 
-    @Override
-    public Map<Vector2i, ItemWidget> render() {
-        return render(widgets);
-    }
-
     public Inventory renderInventory() {
         return new GuiHolder().getInventory();
+    }
+
+    @Override
+    public Map<Vector2i, ItemWidget> render(GuiHolder guiHolder) {
+        return render(guiHolder, widgets);
     }
 
     public class GuiHolder implements InventoryHolder {
 
         private final Inventory inventory;
 
-        private final Map<Integer, Map<Vector2i, Widget>> guiWidgets;
+        private final Map<Integer, Map<Vector2i, Widget>> guiWidgets = new HashMap<>();
+        private final Map<NamespacedKey, Widget> labeledWidgets = new HashMap<>();
 
-        private final Map<UUID, Consumer<InventoryClickEvent>> clickActions;
+        private final Map<UUID, Consumer<InventoryClickEvent>> clickActions = new HashMap<>();
 
         private GuiHolder() {
-            guiWidgets = new HashMap<>();
-            clickActions = new HashMap<>();
             cacheWidgets();
             this.inventory = Bukkit.createInventory(this, numberOfSlots, name);
             loadInventory();
+        }
+
+        public Optional<Widget> getLabeledWidget(NamespacedKey key) {
+            return Optional.ofNullable(labeledWidgets.get(key));
         }
 
         private void cacheWidgets() {
@@ -144,6 +148,7 @@ public class Gui extends Widget {
                     Widget cacheWidget = widget.clone();
                     cacheWidget.setGuiHolder(this);
                     layerWidgets.put(vector2i, cacheWidget);
+                    cacheWidget.getLabel().ifPresent(key -> labeledWidgets.put(key, cacheWidget));
                 });
                 guiWidgets.put(layer.getKey(), layerWidgets);
             });
@@ -151,7 +156,7 @@ public class Gui extends Widget {
 
         public void loadInventory() {
             ItemStack[] items = new ItemStack[inventory.getSize()];
-            render(guiWidgets).forEach((vector2i, itemWidget) -> {
+            render(this, guiWidgets).forEach((vector2i, itemWidget) -> {
                 ItemWidget.ClickAction clickAction = itemWidget.getClickAction();
                 if (clickAction != null) {
                     clickActions.put(clickAction.id(), clickAction.onClick());

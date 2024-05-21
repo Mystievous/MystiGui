@@ -1,10 +1,13 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class Widget implements Cloneable {
 
@@ -12,8 +15,18 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
+    private NamespacedKey label;
+
     public Widget() {
-        size = new Vector2i(1,1);
+        size = new Vector2i(1, 1);
+    }
+
+    public void setLabel(NamespacedKey label) {
+        this.label = label;
+    }
+
+    public Optional<NamespacedKey> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     public void setGuiHolder(@Nullable Gui.GuiHolder guiHolder) {
@@ -58,9 +71,10 @@ public abstract class Widget implements Cloneable {
 
     /**
      * All widgets should render down to the most basic `ItemWidget`
+     *
      * @return positions of all the rendered widgets
      */
-    public abstract Map<Vector2i, ItemWidget> render();
+    public abstract Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder);
 
     @Override
     public Widget clone() {

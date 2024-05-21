@@ -1,6 +1,7 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mysticore.NBTUtils;
+import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.MystiGui;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -55,7 +56,7 @@ public class ItemWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemWidget> render() {
+    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
         Map<Vector2i, ItemWidget> output = new HashMap<>();
         output.put(new Vector2i(), this);
         return output;
@@ -66,6 +67,7 @@ public class ItemWidget extends Widget {
         ItemWidget widget = (ItemWidget) super.clone();
 
         widget.item = this.item.clone();
+        widget.clickAction = this.clickAction;
 
         return widget;
     }

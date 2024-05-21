@@ -2,6 +2,7 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mysticore.ItemUtil;
 import com.starseekstudios.mysticore.Palette;
+import com.starseekstudios.mystigui.Gui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -15,17 +16,15 @@ public class ListWidget extends Widget {
 
     private List<ItemWidget> items = new ArrayList<>();
 
-    private HashMap<Vector2i, ItemWidget> placedItems = new HashMap<>();
-
     private int page;
 
     private boolean clearEmptySpaces;
+    private boolean showPageButtons = true;
 
     public ListWidget(Vector2i size) {
         super();
         page = 1;
         setSize(size);
-        setShowPageButtons(true);
     }
 
     public static ListWidget filled(Vector2i size, ItemWidget itemWidget) {
@@ -53,13 +52,7 @@ public class ListWidget extends Widget {
     }
 
     public void setShowPageButtons(boolean showPageButtons) {
-        if (showPageButtons) {
-            placedItems.put(getSize().sub(2, 0), previousPageWidget(getPage() > 1));
-            placedItems.put(getSize().sub(1, 0), nextPageWidget(getPage() < getMaxPage()));
-        } else {
-            placedItems.remove(getSize().sub(2, 0));
-            placedItems.remove(getSize().sub(1, 0));
-        }
+        this.showPageButtons = showPageButtons;
     }
 
     public void setClearEmptySpaces(boolean clearEmptySpaces) {
@@ -82,14 +75,26 @@ public class ListWidget extends Widget {
         this.page = page;
     }
 
+    public boolean hasNextPage() {
+        return getPage() < getMaxPage();
+    }
+
+    public boolean hasPreviousPage() {
+        return getPage() > 1;
+    }
+
     public void previousPage() {
-        page = Math.max(page - 1, 0);
-        onChange();
+        if (page != 1) {
+            page = Math.max(page - 1, 1);
+            onChange();
+        }
     }
 
     public void nextPage() {
-        page = Math.min(page + 1, getMaxPage());
-        onChange();
+        if (page != getMaxPage()) {
+            page = Math.min(page + 1, getMaxPage());
+            onChange();
+        }
     }
 
     public int getMaxPage() {
@@ -97,7 +102,11 @@ public class ListWidget extends Widget {
     }
 
     public int getItemsPerPage() {
-        return getArea() - placedItems.size();
+        if (showPageButtons) {
+            return getArea() - 2;
+        } else {
+            return getArea();
+        }
     }
 
     public int getPageForIndex(int index) {
@@ -139,35 +148,26 @@ public class ListWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemWidget> render() {
+    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
         int startIndex = pageStartIndex(page);
-        int endIndex = Math.min(startIndex + getItemsPerPage(), items.size());
-        int offsetForPlacedItems = 0;
-        for (int i = startIndex; i < endIndex; i++) {
+        int endSize = Math.min(startIndex + getItemsPerPage(), items.size());
+        for (int i = startIndex; i < endSize; i++) {
             ItemWidget itemWidget = items.get(i);
-            Vector2i position = indexToVector(i - startIndex + offsetForPlacedItems);
-            while (placedItems.containsKey(position)) {
-                renderedItems.put(position, placedItems.get(position));
-
-                offsetForPlacedItems++;
-                position = indexToVector(i - startIndex + offsetForPlacedItems);
-            }
-            renderedItems.put(position, itemWidget.render().get(new Vector2i()));
+            Vector2i position = indexToVector(i - startIndex);
+            renderedItems.put(position, itemWidget.render(guiHolder).get(new Vector2i()));
         }
         if (clearEmptySpaces) {
-            for (int i = endIndex; i < startIndex + getItemsPerPage(); i++) {
+            for (int i = endSize; i < startIndex + getItemsPerPage(); i++) {
                 ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.AIR));
-                Vector2i position = indexToVector(i - startIndex + offsetForPlacedItems);
-                while (placedItems.containsKey(position)) {
-                    renderedItems.put(position, placedItems.get(position));
-
-                    offsetForPlacedItems++;
-                    position = indexToVector(i - startIndex + offsetForPlacedItems);
-                }
-                renderedItems.put(position, itemWidget.render().get(new Vector2i()));
+                Vector2i position = indexToVector(i - startIndex);
+                renderedItems.put(position, itemWidget.render(guiHolder).get(new Vector2i()));
             }
+        }
+        if (showPageButtons) {
+            renderedItems.put(new Vector2i(getSize()).sub(2, 1), previousPageWidget(getPage() > 1));
+            renderedItems.put(new Vector2i(getSize()).sub(1, 1), nextPageWidget(getPage() < getMaxPage()));
         }
         return renderedItems;
     }
