@@ -3,6 +3,7 @@ package com.starseekstudios.mystigui.widget;
 import com.starseekstudios.mysticore.ItemUtil;
 import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
+import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -38,10 +39,10 @@ public class ListNavigationWidget extends Widget {
         this.isPrevious = isPrevious;
 
         if (isPrevious) {
-            itemStack = ItemUtil.createItem(Component.text("Previous Page"), Material.LEATHER_BOOTS, 1);
+            itemStack = Icons.leftArrow(Component.text("Previous Page"), Palette.DISABLED);
             onClick = getOnClick(ListWidget::previousPage);
         } else {
-            itemStack = ItemUtil.createItem(Component.text("Next Page"), Material.LEATHER_BOOTS, 2);
+            itemStack = Icons.rightArrow(Component.text("Next Page"), Palette.DISABLED);
             onClick = getOnClick(ListWidget::nextPage);
         }
     }
@@ -76,7 +77,6 @@ public class ListNavigationWidget extends Widget {
                     } else {
                         leatherArmorMeta.setColor(Palette.DISABLED.toBukkitColor());
                     }
-                    ItemUtil.hideExtraTooltip(leatherArmorMeta);
                 });
             }
         });

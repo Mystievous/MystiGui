@@ -1,10 +1,16 @@
 plugins {
     id 'java'
     id "maven-publish"
+    id "io.github.goooler.shadow" version "8.1.7"
 }
 
 group = 'com.starseekstudios'
 version = System.getenv("VERSION") ?: '0.0.0-dev'
+
+shadowJar {
+    relocate 'de.exlll.configlib', 'com.starseekstudios.mystigui.configlib'
+    relocate 'dev.jorel.commandapi', 'com.starseekstudios.mystigui.commandapi'
+}
 
 repositories {
     mavenCentral()
@@ -21,6 +27,10 @@ repositories {
         url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     }
     maven {
+        name = "NBT-API"
+        url = "https://repo.codemc.org/repository/maven-public/"
+    }
+    maven {
         name = "mysticore-repo"
         url = "https://maven.pkg.github.com/Mystievous/MystiCore"
         credentials {
@@ -32,6 +42,10 @@ repositories {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
+    implementation "de.exlll:configlib-paper:4.5.0"
+    implementation "dev.jorel:commandapi-bukkit-shade:9.5.0-SNAPSHOT"
+    compileOnly "dev.jorel:commandapi-annotations:9.4.1"
+    annotationProcessor "dev.jorel:commandapi-annotations:9.4.1"
     compileOnly "com.starseekstudios:mysticore:1.4.0"
 }
 

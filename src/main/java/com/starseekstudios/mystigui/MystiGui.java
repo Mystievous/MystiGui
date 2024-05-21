@@ -1,5 +1,7 @@
 package com.starseekstudios.mystigui;
 
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,10 +23,19 @@ public final class MystiGui extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).usePluginNamespace());
+    }
+
+    @Override
     public void onEnable() {
+        CommandAPI.onEnable();
         // Plugin startup logic
 
         me = this;
+
+        Icons.reloadConfig();
+        CommandAPI.registerCommand(MystiGuiCommand.class);
 
         GuiListener guiListener = new GuiListener();
         Bukkit.getPluginManager().registerEvents(guiListener, this);

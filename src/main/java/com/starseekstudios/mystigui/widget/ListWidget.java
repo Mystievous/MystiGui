@@ -1,8 +1,10 @@
 package com.starseekstudios.mystigui.widget;
 
+import com.starseekstudios.mysticore.Color;
 import com.starseekstudios.mysticore.ItemUtil;
 import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
+import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -117,16 +119,9 @@ public class ListWidget extends Widget {
         return (page - 1) * getItemsPerPage();
     }
 
-    private static void setPageButtonColor(LeatherArmorMeta leatherArmorMeta, boolean enabled) {
-        leatherArmorMeta.setColor(enabled ? Palette.PRIMARY.toBukkitColor() : Palette.DISABLED.toBukkitColor());
-        ItemUtil.hideExtraTooltip(leatherArmorMeta);
-    }
-
     private ItemWidget nextPageWidget(boolean enabled) {
-        ItemStack arrowItem = ItemUtil.createItem(Component.text("Next Page"), Material.LEATHER_BOOTS, 2);
-        arrowItem.editMeta(LeatherArmorMeta.class, itemMeta -> {
-            setPageButtonColor(itemMeta, enabled);
-        });
+        Color color = enabled ? Palette.PRIMARY : Palette.DISABLED;
+        ItemStack arrowItem = Icons.rightArrow(Component.text("Next Page"), color);
         ItemWidget nextPageWidget = new ItemWidget(arrowItem);
         nextPageWidget.setClickAction(event -> {
             nextPage();
@@ -135,11 +130,8 @@ public class ListWidget extends Widget {
     }
 
     private ItemWidget previousPageWidget(boolean enabled) {
-        ItemStack arrowItem = ItemUtil.createItem(Component.text("Previous Page"), Material.LEATHER_BOOTS, 1);
-        arrowItem.editMeta(itemMeta -> {
-            if (!(itemMeta instanceof LeatherArmorMeta leatherArmorMeta)) return;
-            setPageButtonColor(leatherArmorMeta, enabled);
-        });
+        Color color = enabled ? Palette.PRIMARY : Palette.DISABLED;
+        ItemStack arrowItem = Icons.leftArrow(Component.text("Previous Page"), color);
         ItemWidget previousPageWidget = new ItemWidget(arrowItem);
         previousPageWidget.setClickAction(event -> {
             previousPage();
