@@ -2,6 +2,7 @@ package com.starseekstudios.mystigui;
 
 import com.starseekstudios.mysticore.NBTUtils;
 import com.starseekstudios.mysticore.interact.UsableItemManager;
+import com.starseekstudios.mystigui.widget.FrameWidget;
 import com.starseekstudios.mystigui.widget.ItemWidget;
 import com.starseekstudios.mystigui.widget.Widget;
 import net.kyori.adventure.text.Component;
@@ -20,23 +21,18 @@ import java.util.function.Supplier;
 
 import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableItem;
 
-public class Gui extends Widget {
+public class Gui extends FrameWidget {
 
     public static final int INVENTORY_WIDTH = 9;
 
-    private final Map<Integer, Map<Vector2i, Widget>> widgets;
-    private final Map<Integer, Map<Vector2i, Widget>> widgetSlots;
     private final int numberOfSlots;
     private final Component name;
 
     public Gui(Component name, int rows) {
-        super();
-        this.widgets = new HashMap<>();
-        this.widgetSlots = new HashMap<>();
+        super(new Vector2i(INVENTORY_WIDTH, rows));
 
         this.name = name;
         this.numberOfSlots = rows * INVENTORY_WIDTH;
-        this.setSize(new Vector2i(INVENTORY_WIDTH, rows));
     }
 
     public static UsableItem createShortcutItem(String tag, ItemStack template, Supplier<Gui> getGui) {
@@ -46,78 +42,8 @@ public class Gui extends Widget {
         });
     }
 
-    public void putWidget(int layer, Vector2i position, Widget widget) {
-        Vector2i widgetSize = widget.getSize();
-        Map<Vector2i, Widget> addSlots = new HashMap<>();
-        var layerWidgetSlots = widgetSlots.getOrDefault(layer, new HashMap<>());
-        for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
-            for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
-                if (x < 0 || x >= getSize().x() || y < 0 || y >= getSize().y()) {
-                    MystiGui.pluginLogger().warn("Tried to place widget outside of gui bounds.");
-                    return;
-                }
-                if (layerWidgetSlots.containsKey(new Vector2i(x, y))) {
-                    MystiGui.pluginLogger().warn("Tried to place widget overlapping an already occupied slot in the layer.");
-                    return;
-                }
-                addSlots.put(new Vector2i(x, y), widget);
-            }
-        }
-        var layerWidgets = widgets.getOrDefault(layer, new HashMap<>());
-        layerWidgets.put(position, widget);
-        widgets.put(layer, layerWidgets);
-
-        layerWidgetSlots.putAll(addSlots);
-        widgetSlots.put(layer, layerWidgetSlots);
-    }
-
-    public void putWidget(Vector2i position, Widget widget) {
-        putWidget(0, position, widget);
-    }
-
-    public void putLayer(int layer, Map<Vector2i, Widget> widgetMap) {
-        widgetMap.forEach((widgetPos, widget) -> putWidget(layer, widgetPos, widget));
-    }
-
-    public void putLayer(Map<Vector2i, Widget> widgetMap) {
-        putLayer(0, widgetMap);
-    }
-
-    public void putAll(Map<Integer, Map<Vector2i, Widget>> layerMap) {
-        layerMap.forEach(this::putLayer);
-    }
-
-    private Map<Vector2i, ItemWidget> render(GuiHolder guiHolder, Map<Integer, Map<Vector2i, Widget>> widgets) {
-        Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
-        var layers = new ArrayList<>(widgets.entrySet());
-        layers.sort(Comparator.comparingInt(Map.Entry::getKey));
-        layers.forEach(layer -> {
-            for (Map.Entry<Vector2i, Widget> widgetEntry : layer.getValue().entrySet()) {
-                Vector2i widgetPosition = widgetEntry.getKey();
-                Widget widget = widgetEntry.getValue();
-
-                Map<Vector2i, ItemWidget> items = widget.render(guiHolder);
-
-                for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
-                    Vector2i itemPosition = itemEntry.getKey();
-                    ItemWidget itemValue = itemEntry.getValue();
-
-                    Vector2i pos = new Vector2i(widgetPosition).add(itemPosition);
-
-                    renderedItems.put(pos, itemValue);
-                }
-            }
-        });
-        return renderedItems;
-    }
-
     public Inventory renderInventory() {
         return new GuiHolder().getInventory();
-    }
-
-    @Override
-    public Map<Vector2i, ItemWidget> render(GuiHolder guiHolder) {
-        return render(guiHolder, widgets);
     }
 
     public class GuiHolder implements InventoryHolder {
