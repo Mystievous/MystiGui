@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FrameWidget extends Widget {
-    
+
     protected final Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
     protected final Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
 

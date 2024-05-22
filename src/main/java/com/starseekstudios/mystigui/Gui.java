@@ -5,9 +5,9 @@ import com.starseekstudios.mysticore.interact.UsableItemManager;
 import com.starseekstudios.mystigui.widget.FrameWidget;
 import com.starseekstudios.mystigui.widget.ItemWidget;
 import com.starseekstudios.mystigui.widget.Widget;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -51,7 +51,7 @@ public class Gui extends FrameWidget {
         private final Inventory inventory;
 
         private final Map<Integer, Map<Vector2i, Widget>> guiWidgets = new HashMap<>();
-        private final Map<NamespacedKey, Widget> labeledWidgets = new HashMap<>();
+        private final Map<Key, Widget> labeledWidgets = new HashMap<>();
 
         private final Map<UUID, Consumer<InventoryClickEvent>> clickActions = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class Gui extends FrameWidget {
             loadInventory();
         }
 
-        public Optional<Widget> getLabeledWidget(NamespacedKey key) {
+        public Optional<Widget> getLabeledWidget(Key key) {
             return Optional.ofNullable(labeledWidgets.get(key));
         }
 

@@ -1,7 +1,7 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
-import org.bukkit.NamespacedKey;
+import net.kyori.adventure.key.Key;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -15,17 +15,17 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
-    private NamespacedKey label;
+    private Key label;
 
     public Widget() {
         size = new Vector2i(1, 1);
     }
 
-    public void setLabel(NamespacedKey label) {
+    public void setLabel(Key label) {
         this.label = label;
     }
 
-    public Optional<NamespacedKey> getLabel() {
+    public Optional<Key> getLabel() {
         return Optional.ofNullable(label);
     }
 
