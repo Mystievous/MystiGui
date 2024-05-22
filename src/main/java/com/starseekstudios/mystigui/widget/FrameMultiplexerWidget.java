@@ -2,6 +2,7 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.HashMap;
@@ -17,6 +18,15 @@ public class FrameMultiplexerWidget extends Widget {
     public FrameMultiplexerWidget(Vector2i size) {
         super();
         setSize(size);
+        setOnReload(widget -> ((FrameMultiplexerWidget) widget).frames.forEach((key, frameWidget) -> {
+            frameWidget.onReload();
+        }));
+    }
+
+    @Override
+    public void setGuiHolder(Gui.@Nullable GuiHolder guiHolder) {
+        super.setGuiHolder(guiHolder);
+        frames.values().forEach(frameWidget -> frameWidget.setGuiHolder(guiHolder));
     }
 
     public Optional<Key> getSelectedKey() {
@@ -50,12 +60,12 @@ public class FrameMultiplexerWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
+    public Map<Vector2i, ItemWidget> render() {
         Optional<Key> key = getSelectedKey();
         if (key.isPresent()) {
             Optional<FrameWidget> frameWidget = getFrame(key.get());
             if (frameWidget.isPresent()) {
-                return frameWidget.get().render(guiHolder);
+                return frameWidget.get().render();
             }
         }
 

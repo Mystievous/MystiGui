@@ -1,54 +1,69 @@
 package com.starseekstudios.mystigui.widget;
 
-import com.starseekstudios.mysticore.ItemUtil;
 import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2i;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
-public class ListNavigationWidget extends Widget {
-
-    private final NamespacedKey listWidgetKey;
-    private final boolean isPrevious;
-    private final ItemStack itemStack;
-    private final Consumer<InventoryClickEvent> onClick;
+public class ListNavigationWidget extends ItemWidget {
 
     public static ListNavigationWidget previousPageWidget(NamespacedKey listWidgetKey) {
-        return new ListNavigationWidget(listWidgetKey, true);
+        ItemStack itemStack = Icons.leftArrow(Component.text("Previous Page"), Palette.DISABLED);
+        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::previousPage, listWidgetKey);
+        ListNavigationWidget widget = new ListNavigationWidget(itemStack, listWidgetKey, true);
+        widget.setClickAction(onClick);
+        return widget;
     }
 
     public static ListNavigationWidget nextPageWidget(NamespacedKey listWidgetKey) {
-        return new ListNavigationWidget(listWidgetKey, false);
+        ItemStack itemStack = Icons.rightArrow(Component.text("Next Page"), Palette.DISABLED);
+        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::nextPage, listWidgetKey);
+        ListNavigationWidget widget = new ListNavigationWidget(itemStack, listWidgetKey, false);
+        widget.setClickAction(onClick);
+        return widget;
     }
 
-    private ListNavigationWidget(NamespacedKey listWidgetKey, boolean isPrevious) {
-        super();
+    private final NamespacedKey listWidgetKey;
+    private final boolean isPrevious;
+
+    private ListNavigationWidget(ItemStack itemStack, NamespacedKey listWidgetKey, boolean isPrevious) {
+        super(itemStack);
         this.listWidgetKey = listWidgetKey;
         this.isPrevious = isPrevious;
+        setOnReload(widget -> {
+            widget.getGuiHolder().ifPresent(guiHolder -> {
+                guiHolder.getLabeledWidget(listWidgetKey).ifPresent(checkWidget -> {
+                    if (checkWidget instanceof ListWidget listWidget) {
+                        boolean enabled = isEnabled(listWidget);
+                        ((ItemWidget) widget).modifyItem(modItem -> {
+                            modItem.editMeta(LeatherArmorMeta.class, leatherArmorMeta -> {
+                                if (enabled) {
+                                    leatherArmorMeta.setColor(Palette.PRIMARY.toBukkitColor());
+                                } else {
+                                    leatherArmorMeta.setColor(Palette.DISABLED.toBukkitColor());
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    }
 
-        if (isPrevious) {
-            itemStack = Icons.leftArrow(Component.text("Previous Page"), Palette.DISABLED);
-            onClick = getOnClick(ListWidget::previousPage);
-        } else {
-            itemStack = Icons.rightArrow(Component.text("Next Page"), Palette.DISABLED);
-            onClick = getOnClick(ListWidget::nextPage);
-        }
+    private boolean isEnabled(ListWidget listWidget) {
+        return (isPrevious && listWidget.hasPreviousPage()) || (!isPrevious && listWidget.hasNextPage());
     }
 
     @NotNull
-    private Consumer<InventoryClickEvent> getOnClick(Consumer<ListWidget> onListClick) {
+    private static Consumer<InventoryClickEvent> getOnClick(Consumer<ListWidget> onListClick, NamespacedKey listWidgetKey) {
         return event -> {
             if (event.getInventory().getHolder() instanceof Gui.GuiHolder guiHolder) {
                 guiHolder.getLabeledWidget(listWidgetKey).ifPresent(widget -> {
@@ -60,28 +75,4 @@ public class ListNavigationWidget extends Widget {
         };
     }
 
-    private boolean isEnabled(ListWidget listWidget) {
-        return (isPrevious && listWidget.hasPreviousPage()) || (!isPrevious && listWidget.hasNextPage());
-    }
-
-    @Override
-    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
-        Optional<Widget> checkWidget = guiHolder.getLabeledWidget(listWidgetKey);
-        ItemStack item = itemStack.clone();
-        checkWidget.ifPresent(widget -> {
-            if (widget instanceof ListWidget listWidget) {
-                boolean enabled = isEnabled(listWidget);
-                item.editMeta(LeatherArmorMeta.class, leatherArmorMeta -> {
-                    if (enabled) {
-                        leatherArmorMeta.setColor(Palette.PRIMARY.toBukkitColor());
-                    } else {
-                        leatherArmorMeta.setColor(Palette.DISABLED.toBukkitColor());
-                    }
-                });
-            }
-        });
-        ItemWidget widget = new ItemWidget(item);
-        widget.setClickAction(onClick);
-        return new HashMap<>(Map.of(new Vector2i(), widget));
-    }
 }

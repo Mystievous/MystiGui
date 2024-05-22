@@ -1,14 +1,14 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mysticore.Color;
-import com.starseekstudios.mysticore.ItemUtil;
 import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -27,6 +27,11 @@ public class ListWidget extends Widget {
         super();
         page = 1;
         setSize(size);
+        setOnReload((widget) -> {
+            if (widget instanceof ListWidget listWidget) {
+                listWidget.items.forEach(Widget::onReload);
+            }
+        });
     }
 
     public static ListWidget filled(Vector2i size, ItemWidget itemWidget) {
@@ -42,6 +47,12 @@ public class ListWidget extends Widget {
         ListWidget listWidget = new ListWidget(size);
         listWidget.addAll(collection.stream().map(toWidget).toList());
         return listWidget;
+    }
+
+    @Override
+    public void setGuiHolder(Gui.@Nullable GuiHolder guiHolder) {
+        super.setGuiHolder(guiHolder);
+        items.forEach(itemWidget -> itemWidget.setGuiHolder(guiHolder));
     }
 
     @Override
@@ -140,7 +151,7 @@ public class ListWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
+    public Map<Vector2i, ItemWidget> render() {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
 
         int startIndex = pageStartIndex(page);
@@ -148,13 +159,13 @@ public class ListWidget extends Widget {
         for (int i = startIndex; i < endSize; i++) {
             ItemWidget itemWidget = items.get(i);
             Vector2i position = indexToVector(i - startIndex);
-            renderedItems.put(position, itemWidget.render(guiHolder).get(new Vector2i()));
+            renderedItems.put(position, itemWidget.render().get(new Vector2i()));
         }
         if (clearEmptySpaces) {
             for (int i = endSize; i < startIndex + getItemsPerPage(); i++) {
                 ItemWidget itemWidget = new ItemWidget(new ItemStack(Material.AIR));
                 Vector2i position = indexToVector(i - startIndex);
-                renderedItems.put(position, itemWidget.render(guiHolder).get(new Vector2i()));
+                renderedItems.put(position, itemWidget.render().get(new Vector2i()));
             }
         }
         if (showPageButtons) {

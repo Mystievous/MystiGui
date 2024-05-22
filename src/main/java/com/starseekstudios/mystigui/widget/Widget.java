@@ -2,12 +2,12 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import net.kyori.adventure.key.Key;
-import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class Widget implements Cloneable {
 
@@ -15,10 +15,20 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
+    private Consumer<Widget> onReload;
+
     private Key label;
 
     public Widget() {
         size = new Vector2i(1, 1);
+    }
+
+    protected void setOnReload(Consumer<Widget> onReload) {
+        this.onReload = onReload;
+    }
+
+    private Optional<Consumer<Widget>> getOnReload() {
+        return Optional.ofNullable(onReload);
     }
 
     public void setLabel(Key label) {
@@ -33,9 +43,8 @@ public abstract class Widget implements Cloneable {
         this.guiHolder = guiHolder;
     }
 
-    @Nullable
-    public Gui.GuiHolder getGuiHolder() {
-        return guiHolder;
+    public Optional<Gui.GuiHolder> getGuiHolder() {
+        return Optional.ofNullable(guiHolder);
     }
 
     public int getArea() {
@@ -64,9 +73,11 @@ public abstract class Widget implements Cloneable {
     }
 
     public void onChange() {
-        if (guiHolder != null) {
-            guiHolder.loadInventory();
-        }
+        getGuiHolder().ifPresent(Gui.GuiHolder::loadInventory);
+    }
+
+    public void onReload() {
+        getOnReload().ifPresent(onReload -> onReload.accept(this));
     }
 
     /**
@@ -74,7 +85,7 @@ public abstract class Widget implements Cloneable {
      *
      * @return positions of all the rendered widgets
      */
-    public abstract Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder);
+    public abstract Map<Vector2i, ItemWidget> render();
 
     @Override
     public Widget clone() {
@@ -82,6 +93,7 @@ public abstract class Widget implements Cloneable {
             Widget widget = (Widget) super.clone();
 
             widget.size = (Vector2i) this.size.clone();
+            widget.onReload = this.onReload;
 
             return widget;
         } catch (CloneNotSupportedException e) {

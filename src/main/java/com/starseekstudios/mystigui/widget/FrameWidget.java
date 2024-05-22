@@ -2,7 +2,7 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.MystiGui;
-import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;
@@ -18,6 +18,15 @@ public class FrameWidget extends Widget {
     public FrameWidget(Vector2i size) {
         super();
         this.setSize(size);
+        setOnReload(widget -> {
+            ((FrameWidget) widget).widgets.values().forEach((layers) -> layers.values().forEach(Widget::onReload));
+        });
+    }
+
+    @Override
+    public void setGuiHolder(Gui.@Nullable GuiHolder guiHolder) {
+        super.setGuiHolder(guiHolder);
+        widgets.values().forEach((layers) -> layers.values().forEach(widget -> widget.setGuiHolder(guiHolder)));
     }
 
     public void putWidget(int layer, Vector2i position, Widget widget) {
@@ -62,11 +71,11 @@ public class FrameWidget extends Widget {
     }
 
     @Override
-    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
-        return render(guiHolder, widgets);
+    public Map<Vector2i, ItemWidget> render() {
+        return render(widgets);
     }
 
-    protected Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder, Map<Integer, Map<Vector2i, Widget>> widgets) {
+    protected Map<Vector2i, ItemWidget> render(Map<Integer, Map<Vector2i, Widget>> widgets) {
         Map<Vector2i, ItemWidget> renderedItems = new HashMap<>();
         var layers = new ArrayList<>(widgets.entrySet());
         layers.sort(Comparator.comparingInt(Map.Entry::getKey));
@@ -75,7 +84,7 @@ public class FrameWidget extends Widget {
                 Vector2i widgetPosition = widgetEntry.getKey();
                 Widget widget = widgetEntry.getValue();
 
-                Map<Vector2i, ItemWidget> items = widget.render(guiHolder);
+                Map<Vector2i, ItemWidget> items = widget.render();
 
                 for (Map.Entry<Vector2i, ItemWidget> itemEntry : items.entrySet()) {
                     Vector2i itemPosition = itemEntry.getKey();

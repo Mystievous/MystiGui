@@ -1,7 +1,6 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mysticore.NBTUtils;
-import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.MystiGui;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -11,6 +10,7 @@ import org.joml.Vector2i;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -46,17 +46,30 @@ public class ItemWidget extends Widget {
         setActionId(item, clickAction.id);
     }
 
-    @Nullable
-    public ClickAction getClickAction() {
-        return clickAction;
+    public Optional<ClickAction> getClickAction() {
+        return Optional.ofNullable(clickAction);
     }
 
     public ItemStack getItem() {
         return item;
     }
 
+    public void setItem(ItemStack item) {
+        this.item = item;
+        getClickAction().ifPresent(clickAction -> setActionId(item, clickAction.id));
+    }
+
+    public void modifyItem(Consumer<ItemStack> consumer) {
+        consumer.accept(item);
+    }
+
     @Override
-    public Map<Vector2i, ItemWidget> render(Gui.GuiHolder guiHolder) {
+    public void setOnReload(Consumer<Widget> onReload) {
+        super.setOnReload(onReload);
+    }
+
+    @Override
+    public Map<Vector2i, ItemWidget> render() {
         Map<Vector2i, ItemWidget> output = new HashMap<>();
         output.put(new Vector2i(), this);
         return output;

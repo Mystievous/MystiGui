@@ -82,11 +82,11 @@ public class Gui extends FrameWidget {
 
         public void loadInventory() {
             ItemStack[] items = new ItemStack[inventory.getSize()];
-            render(this, guiWidgets).forEach((vector2i, itemWidget) -> {
-                ItemWidget.ClickAction clickAction = itemWidget.getClickAction();
-                if (clickAction != null) {
+            guiWidgets.values().forEach(widgets -> widgets.values().forEach(Widget::onReload));
+            render(guiWidgets).forEach((vector2i, itemWidget) -> {
+                itemWidget.getClickAction().ifPresent(clickAction -> {
                     clickActions.put(clickAction.id(), clickAction.onClick());
-                }
+                });
                 items[vectorToIndex(vector2i)] = itemWidget.getItem().clone();
             });
             this.inventory.setContents(items);
