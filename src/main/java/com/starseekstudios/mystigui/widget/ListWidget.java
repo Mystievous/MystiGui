@@ -5,7 +5,6 @@ import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -96,18 +95,20 @@ public class ListWidget extends Widget {
         return getPage() > 1;
     }
 
-    public void previousPage() {
+    public boolean goToPreviousPage() {
         if (page != 1) {
             page = Math.max(page - 1, 1);
-            onChange();
+            return true;
         }
+        return false;
     }
 
-    public void nextPage() {
+    public boolean goToNextPage() {
         if (page != getMaxPage()) {
             page = Math.min(page + 1, getMaxPage());
-            onChange();
+            return true;
         }
+        return false;
     }
 
     public int getMaxPage() {
@@ -135,7 +136,9 @@ public class ListWidget extends Widget {
         ItemStack arrowItem = Icons.rightArrow(Component.text("Next Page"), color);
         ItemWidget nextPageWidget = new ItemWidget(arrowItem);
         nextPageWidget.setClickAction(event -> {
-            nextPage();
+            if (goToNextPage()) {
+                reloadInventory();
+            }
         });
         return nextPageWidget;
     }
@@ -145,7 +148,9 @@ public class ListWidget extends Widget {
         ItemStack arrowItem = Icons.leftArrow(Component.text("Previous Page"), color);
         ItemWidget previousPageWidget = new ItemWidget(arrowItem);
         previousPageWidget.setClickAction(event -> {
-            previousPage();
+            if (goToPreviousPage()) {
+                reloadInventory();
+            }
         });
         return previousPageWidget;
     }

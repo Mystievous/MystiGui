@@ -72,8 +72,8 @@ public abstract class Widget implements Cloneable {
         return y * getSize().x() + x;
     }
 
-    public void onChange() {
-        getGuiHolder().ifPresent(Gui.GuiHolder::loadInventory);
+    public void reloadInventory() {
+        getGuiHolder().ifPresent(Gui.GuiHolder::reloadInventory);
     }
 
     public void onReload() {

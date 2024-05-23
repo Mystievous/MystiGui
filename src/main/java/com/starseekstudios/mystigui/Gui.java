@@ -8,6 +8,7 @@ import com.starseekstudios.mystigui.widget.Widget;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -26,12 +27,12 @@ public class Gui extends FrameWidget {
     public static final int INVENTORY_WIDTH = 9;
 
     private final int numberOfSlots;
-    private final Component name;
+    private final Component initialName;
 
-    public Gui(Component name, int rows) {
+    public Gui(Component initialName, int rows) {
         super(new Vector2i(INVENTORY_WIDTH, rows));
 
-        this.name = name;
+        this.initialName = initialName;
         this.numberOfSlots = rows * INVENTORY_WIDTH;
     }
 
@@ -48,7 +49,7 @@ public class Gui extends FrameWidget {
 
     public class GuiHolder implements InventoryHolder {
 
-        private final Inventory inventory;
+        private Inventory inventory;
 
         private final Map<Integer, Map<Vector2i, Widget>> guiWidgets = new HashMap<>();
         private final Map<Key, Widget> labeledWidgets = new HashMap<>();
@@ -57,12 +58,19 @@ public class Gui extends FrameWidget {
 
         private GuiHolder() {
             cacheWidgets();
-            this.inventory = Bukkit.createInventory(this, numberOfSlots, name);
-            loadInventory();
+            this.inventory = Bukkit.createInventory(this, numberOfSlots, initialName);
+            reloadInventory();
         }
 
         public Optional<Widget> getLabeledWidget(Key key) {
             return Optional.ofNullable(labeledWidgets.get(key));
+        }
+
+        public void setName(Component name) {
+            List<HumanEntity> viewers = this.inventory.getViewers();
+            this.inventory = Bukkit.createInventory(this, numberOfSlots, name);
+            reloadInventory();
+            viewers.forEach(humanEntity -> humanEntity.openInventory(this.inventory));
         }
 
         private void cacheWidgets() {
@@ -80,7 +88,7 @@ public class Gui extends FrameWidget {
             });
         }
 
-        public void loadInventory() {
+        public void reloadInventory() {
             ItemStack[] items = new ItemStack[inventory.getSize()];
             guiWidgets.values().forEach(widgets -> widgets.values().forEach(Widget::onReload));
             render(guiWidgets).forEach((vector2i, itemWidget) -> {

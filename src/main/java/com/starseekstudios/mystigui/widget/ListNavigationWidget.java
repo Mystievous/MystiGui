@@ -4,7 +4,6 @@ import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.Icons;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -12,12 +11,13 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ListNavigationWidget extends ItemWidget {
 
     public static ListNavigationWidget previousPageWidget(NamespacedKey listWidgetKey) {
         ItemStack itemStack = Icons.leftArrow(Component.text("Previous Page"), Palette.DISABLED);
-        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::previousPage, listWidgetKey);
+        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::goToPreviousPage, listWidgetKey);
         ListNavigationWidget widget = new ListNavigationWidget(itemStack, listWidgetKey, true);
         widget.setClickAction(onClick);
         return widget;
@@ -25,7 +25,7 @@ public class ListNavigationWidget extends ItemWidget {
 
     public static ListNavigationWidget nextPageWidget(NamespacedKey listWidgetKey) {
         ItemStack itemStack = Icons.rightArrow(Component.text("Next Page"), Palette.DISABLED);
-        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::nextPage, listWidgetKey);
+        Consumer<InventoryClickEvent> onClick = getOnClick(ListWidget::goToNextPage, listWidgetKey);
         ListNavigationWidget widget = new ListNavigationWidget(itemStack, listWidgetKey, false);
         widget.setClickAction(onClick);
         return widget;
@@ -63,12 +63,14 @@ public class ListNavigationWidget extends ItemWidget {
     }
 
     @NotNull
-    private static Consumer<InventoryClickEvent> getOnClick(Consumer<ListWidget> onListClick, NamespacedKey listWidgetKey) {
+    private static Consumer<InventoryClickEvent> getOnClick(Function<ListWidget, Boolean> onListClick, NamespacedKey listWidgetKey) {
         return event -> {
             if (event.getInventory().getHolder() instanceof Gui.GuiHolder guiHolder) {
                 guiHolder.getLabeledWidget(listWidgetKey).ifPresent(widget -> {
                     if (widget instanceof ListWidget listWidget) {
-                        onListClick.accept(listWidget);
+                        if (onListClick.apply(listWidget)) {
+                            listWidget.reloadInventory();
+                        }
                     }
                 });
             }

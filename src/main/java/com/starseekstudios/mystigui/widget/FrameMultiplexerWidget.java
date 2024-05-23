@@ -49,14 +49,15 @@ public class FrameMultiplexerWidget extends Widget {
         return Optional.ofNullable(frames.get(key));
     }
 
-    public void changeFrame(Key key) {
+    public boolean changeFrame(Key key) {
         if (!key.equals(selectedKey)) {
             if (!frames.containsKey(key)) {
                 getOrCreateFrame(key);
             }
             selectedKey = key;
-            onChange();
+            return true;
         }
+        return false;
     }
 
     @Override
