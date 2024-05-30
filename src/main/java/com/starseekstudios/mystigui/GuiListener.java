@@ -5,10 +5,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class GuiListener implements Listener {
-
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(final InventoryClickEvent event) {
-        if (event.getInventory().getHolder() instanceof Gui.GuiHolder gui) {
+        if (event.getView().getTopInventory().getHolder() instanceof Gui.GuiHolder gui) {
             gui.onClick(event);
         }
     }

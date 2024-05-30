@@ -187,8 +187,23 @@ public class ListWidget extends Widget {
         widget.items = new ArrayList<>();
         widget.page = this.page;
         this.items.forEach(widget1 -> widget.addWidget(widget1.clone()));
+        widget.showPageButtons = this.showPageButtons;
+        widget.clearEmptySpaces = this.clearEmptySpaces;
 
         return widget;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ListWidget that = (ListWidget) o;
+        return page == that.page && clearEmptySpaces == that.clearEmptySpaces && showPageButtons == that.showPageButtons && Objects.equals(items, that.items);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), items, page, clearEmptySpaces, showPageButtons);
+    }
 }

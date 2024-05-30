@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -31,12 +32,10 @@ public class ListNavigationWidget extends ItemWidget {
         return widget;
     }
 
-    private final NamespacedKey listWidgetKey;
-    private final boolean isPrevious;
+    private boolean isPrevious;
 
     private ListNavigationWidget(ItemStack itemStack, NamespacedKey listWidgetKey, boolean isPrevious) {
         super(itemStack);
-        this.listWidgetKey = listWidgetKey;
         this.isPrevious = isPrevious;
         setOnReload(widget -> {
             widget.getGuiHolder().ifPresent(guiHolder -> {
@@ -77,4 +76,26 @@ public class ListNavigationWidget extends ItemWidget {
         };
     }
 
+    @Override
+    public ListNavigationWidget clone() {
+        ListNavigationWidget widget = (ListNavigationWidget) super.clone();
+
+        widget.isPrevious = this.isPrevious;
+
+        return widget;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ListNavigationWidget widget = (ListNavigationWidget) o;
+        return isPrevious == widget.isPrevious;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), isPrevious);
+    }
 }

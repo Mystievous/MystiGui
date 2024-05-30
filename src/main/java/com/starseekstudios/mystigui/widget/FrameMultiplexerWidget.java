@@ -7,11 +7,12 @@ import org.joml.Vector2i;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class FrameMultiplexerWidget extends Widget {
 
-    private final HashMap<Key, FrameWidget> frames = new HashMap<>();
+    private HashMap<Key, FrameWidget> frames = new HashMap<>();
 
     private Key selectedKey;
 
@@ -71,5 +72,32 @@ public class FrameMultiplexerWidget extends Widget {
         }
 
         return new HashMap<>();
+    }
+
+    @Override
+    public FrameMultiplexerWidget clone() {
+        FrameMultiplexerWidget widget = (FrameMultiplexerWidget) super.clone();
+
+        HashMap<Key, FrameWidget> frames = new HashMap<>();
+        this.frames.forEach((key, value) -> frames.put(key, value.clone()));
+        widget.frames = frames;
+
+        widget.selectedKey = this.selectedKey;
+
+        return widget;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        FrameMultiplexerWidget that = (FrameMultiplexerWidget) o;
+        return Objects.equals(frames, that.frames) && Objects.equals(selectedKey, that.selectedKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), frames, selectedKey);
     }
 }

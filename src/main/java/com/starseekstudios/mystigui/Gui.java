@@ -5,6 +5,7 @@ import com.starseekstudios.mysticore.interact.UsableItemManager;
 import com.starseekstudios.mystigui.widget.FrameWidget;
 import com.starseekstudios.mystigui.widget.ItemWidget;
 import com.starseekstudios.mystigui.widget.Widget;
+import com.starseekstudios.mystigui.widget.WidgetSlot;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -73,6 +74,21 @@ public class Gui extends FrameWidget {
             viewers.forEach(humanEntity -> humanEntity.openInventory(this.inventory));
         }
 
+        public Optional<WidgetSlot> getWidgetForPosition(Vector2i vector2i) {
+            for (int layer = widgetSlots.size() - 1; layer >= 0; layer--) {
+                var layerSlots = widgetSlots.get(layer);
+                if (layerSlots.containsKey(vector2i)) {
+                    Widget widget = layerSlots.get(vector2i);
+                    var layerWidgets = widgets.get(layer);
+                    Optional<Map.Entry<Vector2i, Widget>> selectedWidget = layerWidgets.entrySet().stream().filter(vector2iWidgetEntry -> vector2iWidgetEntry.getValue().equals(widget)).findFirst();
+                    if (selectedWidget.isPresent()) {
+                        return selectedWidget.map(widgetEntry -> new WidgetSlot(widgetEntry.getValue(), new Vector2i(vector2i).sub(widgetEntry.getKey())));
+                    }
+                }
+            }
+            return Optional.empty();
+        }
+
         private void cacheWidgets() {
             var layers = new ArrayList<>(widgets.entrySet());
             layers.sort(Comparator.comparingInt(Map.Entry::getKey));
@@ -101,15 +117,15 @@ public class Gui extends FrameWidget {
         }
 
         public void onClick(final InventoryClickEvent event) {
-            if (event.isCancelled()) return;
-
             event.setCancelled(true);
             ItemStack itemStack = event.getCurrentItem();
-            if (itemStack == null) return;
-            UUID actionId = ItemWidget.getActionId(itemStack);
-            if (actionId != null && clickActions.containsKey(actionId)) {
-                clickActions.get(actionId).accept(event);
-            }
+            Optional<UUID> actionId = ItemWidget.getActionId(itemStack);
+            actionId.ifPresentOrElse(
+                    uuid -> clickActions.get(uuid).accept(event),
+                    () -> {
+
+                    }
+            );
         }
 
         @Override

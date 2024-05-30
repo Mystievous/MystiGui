@@ -5,15 +5,12 @@ import com.starseekstudios.mystigui.MystiGui;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class FrameWidget extends Widget {
 
-    protected final Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
-    protected final Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
+    protected Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
+    protected Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
 
     public FrameWidget(Vector2i size) {
         super();
@@ -97,5 +94,50 @@ public class FrameWidget extends Widget {
             }
         });
         return renderedItems;
+    }
+
+    @Override
+    public FrameWidget clone() {
+        FrameWidget widget = (FrameWidget) super.clone();
+
+        Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
+
+        this.widgets.forEach((integer, vector2iWidgetMap) -> {
+            Map<Vector2i, Widget> layer = new HashMap<>();
+            vector2iWidgetMap.forEach((vector2i, widget1) -> {
+                layer.put(new Vector2i(vector2i), widget1.clone());
+            });
+            widgets.put(integer, layer);
+        });
+
+        widget.widgets = widgets;
+
+        Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
+
+        this.widgetSlots.forEach((integer, vector2iWidgetMap) -> {
+            Map<Vector2i, Widget> layer = new HashMap<>();
+            vector2iWidgetMap.forEach((vector2i, widget1) -> {
+                layer.put(new Vector2i(vector2i), widget1.clone());
+            });
+            widgets.put(integer, layer);
+        });
+
+        widget.widgetSlots = widgetSlots;
+
+        return widget;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        FrameWidget that = (FrameWidget) o;
+        return Objects.equals(widgets, that.widgets) && Objects.equals(widgetSlots, that.widgetSlots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), widgets, widgetSlots);
     }
 }

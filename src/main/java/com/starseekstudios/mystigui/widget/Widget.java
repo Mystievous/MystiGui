@@ -2,11 +2,14 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import net.kyori.adventure.key.Key;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class Widget implements Cloneable {
@@ -30,6 +33,8 @@ public abstract class Widget implements Cloneable {
     private Optional<Consumer<Widget>> getOnReload() {
         return Optional.ofNullable(onReload);
     }
+
+    protected Optional<BiConsumer<InventoryClickEvent, WidgetSlot>>
 
     public void setLabel(Key label) {
         this.label = label;
@@ -99,5 +104,18 @@ public abstract class Widget implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new Error(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Widget widget = (Widget) o;
+        return Objects.equals(guiHolder, widget.guiHolder) && Objects.equals(size, widget.size) && Objects.equals(onReload, widget.onReload) && Objects.equals(label, widget.label);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(guiHolder, size, onReload, label);
     }
 }

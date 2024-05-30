@@ -27,9 +27,11 @@ public class ItemWidget extends Widget {
         });
     }
 
-    @Nullable
-    public static UUID getActionId(ItemStack itemStack) {
-        return NBTUtils.getUUID(ACTION_KEY, itemStack.getItemMeta());
+    public static Optional<UUID> getActionId(ItemStack itemStack) {
+        if (itemStack == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(NBTUtils.getUUID(ACTION_KEY, itemStack.getItemMeta()));
     }
 
     private ItemStack item;
@@ -84,4 +86,6 @@ public class ItemWidget extends Widget {
 
         return widget;
     }
+
+
 }
