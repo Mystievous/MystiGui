@@ -4,6 +4,7 @@ import com.starseekstudios.mysticore.Color;
 import com.starseekstudios.mysticore.Palette;
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.Icons;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -46,6 +47,11 @@ public class ListWidget extends Widget {
         ListWidget listWidget = new ListWidget(size);
         listWidget.addAll(collection.stream().map(toWidget).toList());
         return listWidget;
+    }
+
+    @Override
+    public Optional<? extends ItemWidget> getLabeledWidget(Key key) {
+        return items.stream().filter(itemWidget -> key.equals(itemWidget.getLabel().orElse(null))).findFirst();
     }
 
     @Override

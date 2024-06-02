@@ -44,6 +44,11 @@ public abstract class Widget implements Cloneable {
         return Optional.ofNullable(label);
     }
 
+    public Optional<? extends Widget> getLabeledWidget(Key key) {
+        return Optional.empty();
+    }
+
+
     public void setGuiHolder(@Nullable Gui.GuiHolder guiHolder) {
         this.guiHolder = guiHolder;
     }

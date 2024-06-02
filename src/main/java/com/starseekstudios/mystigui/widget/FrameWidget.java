@@ -2,6 +2,7 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import com.starseekstudios.mystigui.MystiGui;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
@@ -10,6 +11,7 @@ import java.util.*;
 public class FrameWidget extends Widget {
 
     protected Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
+    protected Map<Key, Widget> labeledWidgets = new HashMap<>();
     protected Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
 
     public FrameWidget(Vector2i size) {
@@ -18,6 +20,11 @@ public class FrameWidget extends Widget {
         setOnReload(widget -> {
             ((FrameWidget) widget).widgets.values().forEach((layers) -> layers.values().forEach(Widget::onReload));
         });
+    }
+
+    @Override
+    public Optional<? extends Widget> getLabeledWidget(Key key) {
+        return super.getLabeledWidget(key);
     }
 
     @Override
@@ -45,6 +52,7 @@ public class FrameWidget extends Widget {
         }
         var layerWidgets = widgets.getOrDefault(layer, new HashMap<>());
         layerWidgets.put(position, widget);
+        widget.getLabel().ifPresent(key -> labeledWidgets.put(key, widget));
         widgets.put(layer, layerWidgets);
 
         layerWidgetSlots.putAll(addSlots);
