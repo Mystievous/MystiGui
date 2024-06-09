@@ -2,14 +2,12 @@ package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
 import net.kyori.adventure.key.Key;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class Widget implements Cloneable {
@@ -34,8 +32,6 @@ public abstract class Widget implements Cloneable {
         return Optional.ofNullable(onReload);
     }
 
-    protected Optional<BiConsumer<InventoryClickEvent, WidgetSlot>>
-
     public void setLabel(Key label) {
         this.label = label;
     }
@@ -48,6 +44,25 @@ public abstract class Widget implements Cloneable {
         return Optional.empty();
     }
 
+    public <T extends Widget> Optional<? extends T> getLabeledWidget(Class<T> widgetClass, Key key) {
+        Optional<? extends Widget> labeledWidget = getLabeledWidget(key);
+        if (labeledWidget.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Widget widget = labeledWidget.get();
+
+        if (widgetClass.isInstance(widget)) {
+            T classWidget = (T) widget;
+            return Optional.of(classWidget);
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<WidgetSlot> getWidgetForPosition(Vector2i position) {
+        return Optional.empty();
+    }
 
     public void setGuiHolder(@Nullable Gui.GuiHolder guiHolder) {
         this.guiHolder = guiHolder;
@@ -69,14 +84,14 @@ public abstract class Widget implements Cloneable {
         this.size = size;
     }
 
-    protected Vector2i indexToVector(int index) {
+    public Vector2i indexToVector(int index) {
         int width = getSize().x();
         int x = index % width;
         int y = index / width;
         return new Vector2i(x, y);
     }
 
-    protected int vectorToIndex(Vector2i vector) {
+    public int vectorToIndex(Vector2i vector) {
         int x = vector.x();
         int y = vector.y();
         return y * getSize().x() + x;
@@ -123,4 +138,5 @@ public abstract class Widget implements Cloneable {
     public int hashCode() {
         return Objects.hash(guiHolder, size, onReload, label);
     }
+
 }

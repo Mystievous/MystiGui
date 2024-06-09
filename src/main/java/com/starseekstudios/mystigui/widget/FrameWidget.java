@@ -23,8 +23,28 @@ public class FrameWidget extends Widget {
     }
 
     @Override
+    public Optional<WidgetSlot> getWidgetForPosition(Vector2i position) {
+        if (position.x() >= getSize().x() || position.y() >= getSize().y()) {
+            return Optional.empty();
+        }
+
+        for (int layer = widgetSlots.size() - 1; layer >= 0; layer--) {
+            var layerSlots = widgetSlots.get(layer);
+            if (layerSlots.containsKey(position)) {
+                Widget widget = layerSlots.get(position);
+                var layerWidgets = widgets.get(layer);
+                Optional<Map.Entry<Vector2i, Widget>> selectedWidget = layerWidgets.entrySet().stream().filter(vector2iWidgetEntry -> vector2iWidgetEntry.getValue().equals(widget)).findFirst();
+                if (selectedWidget.isPresent()) {
+                    return selectedWidget.map(widgetEntry -> new WidgetSlot(widgetEntry.getValue(), new Vector2i(position).sub(widgetEntry.getKey())));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<? extends Widget> getLabeledWidget(Key key) {
-        return super.getLabeledWidget(key);
+        return Optional.ofNullable(labeledWidgets.get(key));
     }
 
     @Override
@@ -40,11 +60,11 @@ public class FrameWidget extends Widget {
         for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
             for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
                 if (x < 0 || x >= getSize().x() || y < 0 || y >= getSize().y()) {
-                    MystiGui.pluginLogger().warn("Tried to place a widget outside of frame bounds.");
+                    MystiGui.pluginLogger().warn(String.format("Tried to place a widget outside of frame bounds.\nWidget: %s\nPosition: %s", widget, new Vector2i(x, y)));
                     return;
                 }
                 if (layerWidgetSlots.containsKey(new Vector2i(x, y))) {
-                    MystiGui.pluginLogger().warn("Tried to place widget overlapping an already occupied slot in the layer.");
+                    MystiGui.pluginLogger().warn(String.format("Tried to place widget overlapping an already occupied slot in the layer.\nWidget: %s\nPosition: %s", widget, new Vector2i(x, y)));
                     return;
                 }
                 addSlots.put(new Vector2i(x, y), widget);
@@ -109,7 +129,6 @@ public class FrameWidget extends Widget {
         FrameWidget widget = (FrameWidget) super.clone();
 
         Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
-
         this.widgets.forEach((integer, vector2iWidgetMap) -> {
             Map<Vector2i, Widget> layer = new HashMap<>();
             vector2iWidgetMap.forEach((vector2i, widget1) -> {
@@ -117,20 +136,7 @@ public class FrameWidget extends Widget {
             });
             widgets.put(integer, layer);
         });
-
-        widget.widgets = widgets;
-
-        Map<Integer, Map<Vector2i, Widget>> widgetSlots = new HashMap<>();
-
-        this.widgetSlots.forEach((integer, vector2iWidgetMap) -> {
-            Map<Vector2i, Widget> layer = new HashMap<>();
-            vector2iWidgetMap.forEach((vector2i, widget1) -> {
-                layer.put(new Vector2i(vector2i), widget1.clone());
-            });
-            widgets.put(integer, layer);
-        });
-
-        widget.widgetSlots = widgetSlots;
+        widget.putAll(widgets);
 
         return widget;
     }
@@ -141,11 +147,12 @@ public class FrameWidget extends Widget {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         FrameWidget that = (FrameWidget) o;
-        return Objects.equals(widgets, that.widgets) && Objects.equals(widgetSlots, that.widgetSlots);
+        return Objects.equals(widgets, that.widgets) && Objects.equals(labeledWidgets, that.labeledWidgets) && Objects.equals(widgetSlots, that.widgetSlots);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), widgets, widgetSlots);
+        return Objects.hash(super.hashCode(), widgets, labeledWidgets, widgetSlots);
     }
+
 }

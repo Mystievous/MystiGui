@@ -34,10 +34,26 @@ public class FrameMultiplexerWidget extends Widget {
         return Optional.ofNullable(selectedKey);
     }
 
+    @Override
+    public Optional<? extends FrameWidget> getLabeledWidget(Key key) {
+        return Optional.ofNullable(frames.get(key));
+    }
+
+    @Override
+    public Optional<WidgetSlot> getWidgetForPosition(Vector2i position) {
+        if (position.x() >= getSize().x() || position.y() >= getSize().y()) {
+            return Optional.empty();
+        }
+
+        Optional<? extends FrameWidget> widget = getCurrentFrame();
+        return widget.map(frameWidget -> new WidgetSlot(frameWidget, position));
+    }
+
     public FrameWidget getOrCreateFrame(Key key) {
         FrameWidget frameWidget = frames.get(key);
         if (frameWidget == null) {
             frameWidget = new FrameWidget(getSize());
+            frameWidget.setLabel(key);
             frames.put(key, frameWidget);
         }
         if (getSelectedKey().isEmpty()) {
@@ -46,8 +62,15 @@ public class FrameMultiplexerWidget extends Widget {
         return frameWidget;
     }
 
-    private Optional<FrameWidget> getFrame(Key key) {
-        return Optional.ofNullable(frames.get(key));
+    private Optional<? extends FrameWidget> getCurrentFrame() {
+        Optional<Key> key = getSelectedKey();
+        if (key.isPresent()) {
+            Optional<? extends FrameWidget> frameWidget = getLabeledWidget(key.get());
+            if (frameWidget.isPresent()) {
+                return frameWidget;
+            }
+        }
+        return Optional.empty();
     }
 
     public boolean changeFrame(Key key) {
@@ -63,12 +86,9 @@ public class FrameMultiplexerWidget extends Widget {
 
     @Override
     public Map<Vector2i, ItemWidget> render() {
-        Optional<Key> key = getSelectedKey();
-        if (key.isPresent()) {
-            Optional<FrameWidget> frameWidget = getFrame(key.get());
-            if (frameWidget.isPresent()) {
-                return frameWidget.get().render();
-            }
+        Optional<? extends FrameWidget> widget = getCurrentFrame();
+        if (widget.isPresent()) {
+            return widget.get().render();
         }
 
         return new HashMap<>();
@@ -81,8 +101,6 @@ public class FrameMultiplexerWidget extends Widget {
         HashMap<Key, FrameWidget> frames = new HashMap<>();
         this.frames.forEach((key, value) -> frames.put(key, value.clone()));
         widget.frames = frames;
-
-        widget.selectedKey = this.selectedKey;
 
         return widget;
     }

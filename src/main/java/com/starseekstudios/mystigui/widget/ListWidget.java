@@ -17,6 +17,7 @@ import java.util.function.Function;
 public class ListWidget extends Widget {
 
     private List<ItemWidget> items = new ArrayList<>();
+    protected Map<Key, ItemWidget> labeledWidgets = new HashMap<>();
 
     private int page;
 
@@ -50,8 +51,22 @@ public class ListWidget extends Widget {
     }
 
     @Override
+    public Optional<WidgetSlot> getWidgetForPosition(Vector2i position) {
+        if (position.x() >= getSize().x() || position.y() >= getSize().y()) {
+            return Optional.empty();
+        }
+
+        int index = vectorToIndex(position);
+        if (index >= getItemsPerPage()) {
+            return Optional.empty();
+        }
+        int itemIndex = pageStartIndex(getPage()) + index;
+        return Optional.of(new WidgetSlot(items.get(itemIndex), new Vector2i()));
+    }
+
+    @Override
     public Optional<? extends ItemWidget> getLabeledWidget(Key key) {
-        return items.stream().filter(itemWidget -> key.equals(itemWidget.getLabel().orElse(null))).findFirst();
+        return Optional.ofNullable(labeledWidgets.get(key));
     }
 
     @Override
@@ -67,6 +82,14 @@ public class ListWidget extends Widget {
 
     public void addWidget(ItemWidget itemWidget) {
         items.add(itemWidget);
+        itemWidget.getLabel().ifPresent(key -> labeledWidgets.put(key, itemWidget));
+    }
+
+    public void addAll(Collection<ItemWidget> widgets) {
+        items.addAll(widgets);
+        widgets.stream()
+                .filter(itemWidget -> itemWidget.getLabel().isPresent())
+                .forEach(itemWidget -> labeledWidgets.put(itemWidget.getLabel().get(), itemWidget));
     }
 
     public void setShowPageButtons(boolean showPageButtons) {
@@ -75,10 +98,6 @@ public class ListWidget extends Widget {
 
     public void setClearEmptySpaces(boolean clearEmptySpaces) {
         this.clearEmptySpaces = clearEmptySpaces;
-    }
-
-    public void addAll(Collection<ItemWidget> widgets) {
-        items.addAll(widgets);
     }
 
     public void addItem(ItemStack itemStack) {
@@ -191,10 +210,7 @@ public class ListWidget extends Widget {
         ListWidget widget = (ListWidget) super.clone();
 
         widget.items = new ArrayList<>();
-        widget.page = this.page;
         this.items.forEach(widget1 -> widget.addWidget(widget1.clone()));
-        widget.showPageButtons = this.showPageButtons;
-        widget.clearEmptySpaces = this.clearEmptySpaces;
 
         return widget;
     }

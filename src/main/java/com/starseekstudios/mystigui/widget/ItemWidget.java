@@ -45,7 +45,6 @@ public class ItemWidget extends Widget {
 
     public void setClickAction(Consumer<InventoryClickEvent> onClick) {
         clickAction = new ClickAction(UUID.randomUUID(), onClick);
-        setActionId(item, clickAction.id);
     }
 
     public Optional<ClickAction> getClickAction() {
@@ -56,9 +55,14 @@ public class ItemWidget extends Widget {
         return item;
     }
 
+    public ItemStack getActionItem() {
+        ItemStack itemStack = getItem();
+        getClickAction().ifPresent(clickAction1 -> setActionId(getItem(), clickAction1.id));
+        return itemStack;
+    }
+
     public void setItem(ItemStack item) {
         this.item = item;
-        getClickAction().ifPresent(clickAction -> setActionId(item, clickAction.id));
     }
 
     public void modifyItem(Consumer<ItemStack> consumer) {
