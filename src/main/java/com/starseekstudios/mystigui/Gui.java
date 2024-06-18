@@ -1,5 +1,6 @@
 package com.starseekstudios.mystigui;
 
+import com.starseekstudios.mysticore.MystiCore;
 import com.starseekstudios.mysticore.NBTUtils;
 import com.starseekstudios.mysticore.interact.UsableItemManager;
 import com.starseekstudios.mystigui.widget.FrameWidget;
@@ -29,8 +30,21 @@ import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableIte
 
 public class Gui extends FrameWidget {
 
-    public static BukkitTask delayClose(Plugin plugin, HumanEntity humanEntity) {
+    public static Optional<GuiHolder> getHolder(Inventory inventory) {
+        return Optional.ofNullable(inventory.getHolder()).map(GuiHolder.class::isInstance).map(GuiHolder.class::cast);
+    }
+
+    public static BukkitTask close(Plugin plugin, HumanEntity humanEntity) {
         return Bukkit.getScheduler().runTaskLater(plugin, () -> humanEntity.closeInventory(), 1);
+    }
+
+    public static BukkitTask close(HumanEntity humanEntity) {
+        return close(MystiGui.getInstance(), humanEntity);
+    }
+
+    @Deprecated
+    public static BukkitTask delayClose(Plugin plugin, HumanEntity humanEntity) {
+        return close(plugin, humanEntity);
     }
 
     public static final NamespacedKey guiItemKey = NamespacedKey.fromString("gui-item", MystiGui.getInstance());
