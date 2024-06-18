@@ -31,7 +31,7 @@ import static com.starseekstudios.mysticore.interact.UsableItemManager.UsableIte
 public class Gui extends FrameWidget {
 
     public static Optional<GuiHolder> getHolder(Inventory inventory) {
-        return Optional.ofNullable(inventory.getHolder()).map(GuiHolder.class::isInstance).map(GuiHolder.class::cast);
+        return Optional.ofNullable(inventory.getHolder()).filter(GuiHolder.class::isInstance).map(GuiHolder.class::cast);
     }
 
     public static BukkitTask close(Plugin plugin, HumanEntity humanEntity) {
