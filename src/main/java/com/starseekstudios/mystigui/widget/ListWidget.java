@@ -69,6 +69,21 @@ public class ListWidget extends Widget {
         return Optional.ofNullable(labeledWidgets.get(key));
     }
 
+    public void remove(ItemWidget itemWidget) {
+        itemWidget.getLabel().ifPresent(labeledWidgets::remove);
+        items.remove(itemWidget);
+    }
+
+    public void remove(int index) {
+        ItemWidget itemWidget = items.get(index);
+        itemWidget.getLabel().ifPresent(labeledWidgets::remove);
+        items.remove(index);
+    }
+
+    public void sort(Comparator<? super ItemWidget> comparator) {
+        items.sort(comparator);
+    }
+
     @Override
     public void setGuiHolder(Gui.@Nullable GuiHolder guiHolder) {
         super.setGuiHolder(guiHolder);
@@ -78,6 +93,11 @@ public class ListWidget extends Widget {
     @Override
     public void setSize(Vector2i size) {
         super.setSize(size);
+    }
+
+    public void addWidget(int index, ItemWidget widget) {
+        items.add(index, widget);
+        widget.getLabel().ifPresent(key -> labeledWidgets.put(key, widget));
     }
 
     public void addWidget(ItemWidget itemWidget) {
@@ -98,6 +118,10 @@ public class ListWidget extends Widget {
 
     public void setClearEmptySpaces(boolean clearEmptySpaces) {
         this.clearEmptySpaces = clearEmptySpaces;
+    }
+
+    public void addItem(int index, ItemStack item) {
+        items.add(index, new ItemWidget(item));
     }
 
     public void addItem(ItemStack itemStack) {

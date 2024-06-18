@@ -60,11 +60,11 @@ public class FrameWidget extends Widget {
         for (int x = position.x(); x < widgetSize.x() + position.x(); x++) {
             for (int y = position.y(); y < widgetSize.y() + position.y(); y++) {
                 if (x < 0 || x >= getSize().x() || y < 0 || y >= getSize().y()) {
-                    MystiGui.pluginLogger().warn(String.format("Tried to place a widget outside of frame bounds.\nWidget: %s\nPosition: %s", widget, new Vector2i(x, y)));
+                    MystiGui.pluginLogger().warn(String.format("Tried to place a widget outside of frame bounds.\nWidget: %s\nPosition: %s\nLabel: %s", widget.getClass().getName(), new Vector2i(x, y), widget.getLabel().orElse(null)));
                     return;
                 }
                 if (layerWidgetSlots.containsKey(new Vector2i(x, y))) {
-                    MystiGui.pluginLogger().warn(String.format("Tried to place widget overlapping an already occupied slot in the layer.\nWidget: %s\nPosition: %s", widget, new Vector2i(x, y)));
+                    MystiGui.pluginLogger().warn(String.format("Tried to place widget overlapping an already occupied slot in the layer.\nWidget: %s\nPosition: %s\nLabel: %s", widget, new Vector2i(x, y), widget.getLabel().orElse(null)));
                     return;
                 }
                 addSlots.put(new Vector2i(x, y), widget);
@@ -127,6 +127,9 @@ public class FrameWidget extends Widget {
     @Override
     public FrameWidget clone() {
         FrameWidget widget = (FrameWidget) super.clone();
+        widget.widgets = new HashMap<>();
+        widget.widgetSlots = new HashMap<>();
+        widget.labeledWidgets = new HashMap<>();
 
         Map<Integer, Map<Vector2i, Widget>> widgets = new HashMap<>();
         this.widgets.forEach((integer, vector2iWidgetMap) -> {
