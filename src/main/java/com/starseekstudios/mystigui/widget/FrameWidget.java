@@ -17,7 +17,7 @@ public class FrameWidget extends Widget {
     public FrameWidget(Vector2i size) {
         super();
         this.setSize(size);
-        setOnReload(widget -> {
+        addOnReload(widget -> {
             ((FrameWidget) widget).widgets.values().forEach((layers) -> layers.values().forEach(Widget::onReload));
         });
     }

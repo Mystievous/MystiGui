@@ -42,11 +42,6 @@ public class Gui extends FrameWidget {
         return close(MystiGui.getInstance(), humanEntity);
     }
 
-    @Deprecated
-    public static BukkitTask delayClose(Plugin plugin, HumanEntity humanEntity) {
-        return close(plugin, humanEntity);
-    }
-
     public static final NamespacedKey guiItemKey = NamespacedKey.fromString("gui-item", MystiGui.getInstance());
 
     private static ItemStack setAsGuiItem(ItemStack itemStack) {

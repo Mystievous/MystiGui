@@ -28,7 +28,7 @@ public class ListWidget extends Widget {
         super();
         page = 1;
         setSize(size);
-        setOnReload((widget) -> {
+        addOnReload((widget) -> {
             if (widget instanceof ListWidget listWidget) {
                 listWidget.items.forEach(Widget::onReload);
             }

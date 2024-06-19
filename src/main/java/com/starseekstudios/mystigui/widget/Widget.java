@@ -5,9 +5,7 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class Widget implements Cloneable {
@@ -16,7 +14,7 @@ public abstract class Widget implements Cloneable {
     private Gui.GuiHolder guiHolder;
     private Vector2i size;
 
-    private Consumer<Widget> onReload;
+    private List<Consumer<Widget>> onReloads = new ArrayList<>();
 
     private Key label;
 
@@ -24,12 +22,14 @@ public abstract class Widget implements Cloneable {
         size = new Vector2i(1, 1);
     }
 
-    protected void setOnReload(Consumer<Widget> onReload) {
-        this.onReload = onReload;
-    }
-
-    private Optional<Consumer<Widget>> getOnReload() {
-        return Optional.ofNullable(onReload);
+    /**
+     * Adds a consumer to run on reload.
+     * Puts it at the *beginning* of the list,
+     * so it will run before any previously set ones.
+     * @param onReload Consumer to add to the list.
+     */
+    public void addOnReload(Consumer<Widget> onReload) {
+        onReloads.addFirst(onReload);
     }
 
     public void setLabel(Key label) {
@@ -102,7 +102,7 @@ public abstract class Widget implements Cloneable {
     }
 
     public void onReload() {
-        getOnReload().ifPresent(onReload -> onReload.accept(this));
+        onReloads.forEach(r -> r.accept(this));
     }
 
     /**
@@ -118,7 +118,7 @@ public abstract class Widget implements Cloneable {
             Widget widget = (Widget) super.clone();
 
             widget.size = (Vector2i) this.size.clone();
-            widget.onReload = this.onReload;
+            widget.onReloads = new ArrayList<>(this.onReloads);
 
             return widget;
         } catch (CloneNotSupportedException e) {
@@ -131,12 +131,11 @@ public abstract class Widget implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Widget widget = (Widget) o;
-        return Objects.equals(guiHolder, widget.guiHolder) && Objects.equals(size, widget.size) && Objects.equals(onReload, widget.onReload) && Objects.equals(label, widget.label);
+        return Objects.equals(guiHolder, widget.guiHolder) && Objects.equals(size, widget.size) && Objects.equals(onReloads, widget.onReloads) && Objects.equals(label, widget.label);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guiHolder, size, onReload, label);
+        return Objects.hash(guiHolder, size, onReloads, label);
     }
-
 }

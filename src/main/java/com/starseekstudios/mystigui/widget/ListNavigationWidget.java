@@ -37,10 +37,12 @@ public class ListNavigationWidget extends ItemWidget {
     private ListNavigationWidget(ItemStack itemStack, NamespacedKey listWidgetKey, boolean isPrevious) {
         super(itemStack);
         this.isPrevious = isPrevious;
-        setOnReload(widget -> {
-            widget.getGuiHolder().ifPresent(guiHolder -> {
-                guiHolder.getLabeledWidget(listWidgetKey).ifPresent(checkWidget -> {
-                    if (checkWidget instanceof ListWidget listWidget) {
+        addOnReload(widget -> {
+            widget.getGuiHolder()
+                    .flatMap(g -> g.getLabeledWidget(listWidgetKey))
+                    .filter(ListWidget.class::isInstance)
+                    .map(ListWidget.class::cast)
+                    .ifPresent(listWidget -> {
                         boolean enabled = isEnabled(listWidget);
                         ((ItemWidget) widget).modifyItem(modItem -> {
                             modItem.editMeta(LeatherArmorMeta.class, leatherArmorMeta -> {
@@ -51,9 +53,7 @@ public class ListNavigationWidget extends ItemWidget {
                                 }
                             });
                         });
-                    }
-                });
-            });
+                    });
         });
     }
 

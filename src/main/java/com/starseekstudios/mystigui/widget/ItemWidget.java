@@ -70,11 +70,6 @@ public class ItemWidget extends Widget {
     }
 
     @Override
-    public void setOnReload(Consumer<Widget> onReload) {
-        super.setOnReload(onReload);
-    }
-
-    @Override
     public Map<Vector2i, ItemWidget> render() {
         Map<Vector2i, ItemWidget> output = new HashMap<>();
         output.put(new Vector2i(), this);

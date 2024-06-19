@@ -19,7 +19,7 @@ public class FrameMultiplexerWidget extends Widget {
     public FrameMultiplexerWidget(Vector2i size) {
         super();
         setSize(size);
-        setOnReload(widget -> ((FrameMultiplexerWidget) widget).frames.forEach((key, frameWidget) -> {
+        addOnReload(widget -> ((FrameMultiplexerWidget) widget).frames.forEach((key, frameWidget) -> {
             frameWidget.onReload();
         }));
     }
