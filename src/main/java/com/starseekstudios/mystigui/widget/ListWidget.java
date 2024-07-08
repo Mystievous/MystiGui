@@ -173,7 +173,7 @@ public class ListWidget extends Widget {
     }
 
     public int getPageForIndex(int index) {
-        return (int) Math.ceil((float) index / getItemsPerPage());
+        return (int) Math.ceil((float) (index + 1) / getItemsPerPage());
     }
 
     public int pageStartIndex(int page) {
