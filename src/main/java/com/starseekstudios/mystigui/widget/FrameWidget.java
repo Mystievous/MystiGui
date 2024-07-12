@@ -1,6 +1,7 @@
 package com.starseekstudios.mystigui.widget;
 
 import com.starseekstudios.mystigui.Gui;
+import com.starseekstudios.mystigui.Icons;
 import com.starseekstudios.mystigui.MystiGui;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +52,10 @@ public class FrameWidget extends Widget {
     public void setGuiHolder(Gui.@Nullable GuiHolder guiHolder) {
         super.setGuiHolder(guiHolder);
         widgets.values().forEach((layers) -> layers.values().forEach(widget -> widget.setGuiHolder(guiHolder)));
+    }
+
+    public void fillBackground(int layer) {
+        putWidget(layer, new Vector2i(), ListWidget.filled(getSize(), new ItemWidget(Icons.blankSlot())));
     }
 
     public void putWidget(int layer, Vector2i position, Widget widget) {

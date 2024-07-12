@@ -27,6 +27,17 @@ public class Icons {
         return makeIcon(item);
     }
 
+    public static ItemStack exitButton(Component name) {
+        return makeIcon(name, config.exitButton);
+    }
+
+    public static ItemStack confirmPart(Component name) {
+        return makeIcon(name, config.confirmPart);
+    }
+
+    public static ItemStack denyPart(Component name) {
+        return makeIcon(name, config.denyPart);
+    }
 
     public static ItemStack playerHead(OfflinePlayer player) {
         ItemStack skull = makeIcon(null, config.playerHead);
@@ -36,17 +47,12 @@ public class Icons {
         return skull;
     }
 
-
     public static ItemStack leftArrow(Component name, Color color) {
         return colorIcon(makeIcon(name, config.leftArrow), color);
     }
 
     public static ItemStack rightArrow(Component name, Color color) {
         return colorIcon(makeIcon(name, config.rightArrow), color);
-    }
-
-    public static ItemStack exitButton(Component name) {
-        return makeIcon(name, config.exitButton);
     }
 
     private static ItemStack makeIcon(Component name, IconEntry entry) {
@@ -62,7 +68,10 @@ public class Icons {
     }
 
     private static ItemStack colorIcon(ItemStack item, Color color) {
-        item.editMeta(LeatherArmorMeta.class, leatherArmorMeta -> leatherArmorMeta.setColor(color.toBukkitColor()));
+        item.editMeta(LeatherArmorMeta.class, leatherArmorMeta -> {
+            leatherArmorMeta.setColor(color.toBukkitColor());
+            ItemUtil.hideExtraTooltip(leatherArmorMeta);
+        });
         return item;
     }
 
@@ -81,6 +90,8 @@ public class Icons {
 
         IconEntry blankSlot = new IconEntry(Material.WHITE_STAINED_GLASS_PANE, 0);
         IconEntry exitButton = new IconEntry(Material.REDSTONE_BLOCK, 0);
+        IconEntry confirmPart = new IconEntry(Material.GREEN_STAINED_GLASS_PANE, 0);
+        IconEntry denyPart = new IconEntry(Material.RED_STAINED_GLASS_PANE, 0);
 
         @Comment("Player Head `material` is discarded as it will always be `PLAYER_HEAD`")
         IconEntry playerHead = new IconEntry(Material.PLAYER_HEAD, 0);

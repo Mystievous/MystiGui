@@ -26,6 +26,7 @@ public abstract class Widget implements Cloneable {
      * Adds a consumer to run on reload.
      * Puts it at the *beginning* of the list,
      * so it will run before any previously set ones.
+     *
      * @param onReload Consumer to add to the list.
      */
     public void addOnReload(Consumer<Widget> onReload) {
